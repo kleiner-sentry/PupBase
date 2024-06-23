@@ -1,0 +1,79 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    
+    <PropertyGroup>
+        <TargetFramework>net48</TargetFramework>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <Reference Include="..\lib\Assembly-CSharp-firstpass.dll">
+          <Private>false</Private>
+        </Reference>
+        <Reference Include="..\lib\BepInEx.dll">
+          <Private>false</Private>
+        </Reference>
+        <Reference Include="..\lib\HOOKS-Assembly-CSharp.dll">
+          <Private>false</Private>
+        </Reference>
+        <Reference Include="..\lib\Mono.Cecil.dll">
+          <Private>false</Private>
+        </Reference>
+        <Reference Include="..\lib\Mono.Cecil.Rocks.dll">
+          <Private>false</Private>
+        </Reference>
+        <Reference Include="..\lib\MonoMod.dll">
+          <Private>false</Private>
+        </Reference>
+        <Reference Include="..\lib\MonoMod.RuntimeDetour.dll">
+          <Private>false</Private>
+        </Reference>
+        <Reference Include="..\lib\MonoMod.Utils.dll">
+          <Private>false</Private>
+        </Reference>
+        <Reference Include="..\lib\Newtonsoft.Json.dll">
+          <Private>false</Private>
+        </Reference>
+        <Reference Include="..\lib\SlugBase.dll">
+          <Private>false</Private>
+        </Reference>
+        <Reference Include="..\lib\UnityEngine.dll">
+          <Private>false</Private>
+        </Reference>
+        <Reference Include="DressMySlugcat">
+          <HintPath>..\lib\DressMySlugcat.dll</HintPath>
+        </Reference>
+        <Reference Include="ImprovedInput">
+          <HintPath>..\lib\ImprovedInput.dll</HintPath>
+        </Reference>
+        <Reference Include="Assembly-CSharp">
+          <HintPath>..\lib\PUBLIC-Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+          <HintPath>..\lib\UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.ImageConversionModule">
+          <HintPath>..\lib\UnityEngine.ImageConversionModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.InputLegacyModule">
+          <HintPath>..\lib\UnityEngine.InputLegacyModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.InputModule">
+          <HintPath>..\lib\UnityEngine.InputModule.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    
+    <Target Name="GenerateMod" AfterTargets="PostBuildEvent">
+		<ItemGroup>
+			<RemovePlugins Include="../PupBase/plugins/*.dll" />
+			<RemovePDBs Include="$(OutDir)*.pdb" />
+		</ItemGroup>
+		<ItemGroup>
+			<CopyPlugins Include="$(TargetPath)" />
+			<CopyPDBs Include="$(OutDir)*.pdb" />
+		</ItemGroup>
+		
+        <Delete Files="@(RemovePlugins)" />
+		<Copy SourceFiles="@(CopyPlugins);@(CopyPDBs)" DestinationFolder="../PupBase/plugins/" />
+    </Target>
+    
+</Project>

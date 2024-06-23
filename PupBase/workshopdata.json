@@ -1,0 +1,19 @@
+{
+  "Title": "Spearslug",
+  "Description": "a hybrid between Organic and Artificial. Big thanks to Rinjay for the art!",
+  "ID": "Antoneeee.spearslugmod",
+  "Version": "1.5.9",
+  "TargetGameVersion": "v1.9.15b",
+  "Requirements": "slime-cubed.slugbase,improved-input-config",
+  "RequirementNames": "SlugBase,Improved Input Config",
+  "Authors": "Antoneeee",
+  "Visibility": "Unlisted",
+  "Tags": [
+    "Campaigns",
+    "Game Mechanics",
+    "Custom Slugcat"
+  ],
+  "WorkshopID": 3212425005,
+  "UploadFilesOnly": true,
+  "UploadThumbnail": false
+}
