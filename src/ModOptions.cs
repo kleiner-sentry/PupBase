@@ -80,8 +80,8 @@
                 PupUIList.Add(new OpLabel(175, 575 - vpos - interval * 2, type.spawnWeight.ToString()));
                 PupUIList.Add(new OpLabel(50, 575 - vpos - interval * 3, "Food:"));
                 PupUIList.Add(new OpLabel(175, 575 - vpos - interval * 3, type.foodToHibernate + " - " + type.maxFood));
-                PupUIList.Add(new OpLabel(50, 575 - vpos - interval * 4, "Region Modifiers:"));
-                PupUIList.Add(new OpLabel(175, 575 - vpos - interval * 4, (type.RegionMultToString() != null ? type.RegionMultToString() : "N/A")));
+                PupUIList.Add(new OpLabel(50, 575 - vpos - interval * 4, "Spawn Modifiers:"));
+                PupUIList.Add(new OpLabel(175, 575 - vpos - interval * 4, (type.SpawnModifiersToString() != null ? type.SpawnModifiersToString() : "N/A")));
                 //customMeowList.Add(weightUpDown);
 
                 i++;

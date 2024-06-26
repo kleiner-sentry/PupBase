@@ -2,7 +2,7 @@
 {
     public static class PupManager
     {
-        private static List<PupType> pupTypeList = [new PupType(Plugin.MOD_NAME, MoreSlugcatsEnums.SlugcatStatsName.Slugpup, regionMultList: new List<PupType.RegionMult> { new PupType.RegionMult("SU", 1.2f) })];
+        private static List<PupType> pupTypeList = [new PupType(Plugin.MOD_NAME, MoreSlugcatsEnums.SlugcatStatsName.Slugpup, spawnModifiersList: new List<PupType.SpawnModifiers> { new PupType.SpawnModifiers("SU", 1.2f) })];
 
         /// <summary>
         /// Register a new PupType. Will return the PupType given. It is recommended that you assign this while your mod is initializing.

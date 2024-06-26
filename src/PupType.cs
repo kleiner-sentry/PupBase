@@ -4,7 +4,7 @@ namespace PupBase
 {
     public class PupType
     {
-        public class RegionMult
+        public class SpawnModifiers
         {
             public string regionID;
             public float multiplier;
@@ -14,7 +14,7 @@ namespace PupBase
             /// </summary>
             /// <param name="regionID"></param>
             /// <param name="multiplier"></param>
-            public RegionMult(string regionID, float multiplier)
+            public SpawnModifiers(string regionID, float multiplier)
             {
                 this.regionID = regionID;
                 this.multiplier = multiplier;
@@ -30,7 +30,7 @@ namespace PupBase
         public SlugcatStats.Name name;
         public int spawnWeight;
 
-        public List<RegionMult> regionMultList;
+        public List<SpawnModifiers> spawnModifiersList;
 
         public int foodToHibernate;
         public int maxFood;
@@ -46,7 +46,7 @@ namespace PupBase
         /// <param name="maxFood">(OPTIONAL) The maximum food this pup can hold.</param>
         /// <param name="hideInMenu">(OPTIONAL) Hide this pup in the story menu.</param>
         /// <param name="regionMultList">(OPTIONAL) Allows you to choose which region this type will be chosen more or less freqently in.</param>
-        public PupType(string modName, SlugcatStats.Name name, int spawnWeight = 100, int foodToHibernate = 2, int maxFood = 3, bool hideInMenu = true, List<RegionMult> regionMultList = null)
+        public PupType(string modName, SlugcatStats.Name name, int spawnWeight = 100, int foodToHibernate = 2, int maxFood = 3, bool hideInMenu = true, List<SpawnModifiers> spawnModifiersList = null)
         {
             this.modName = string.IsNullOrEmpty(modName) ? this.modName = "???" : modName;
             if (name != null)
@@ -60,7 +60,7 @@ namespace PupBase
             }
             this.spawnWeight = spawnWeight;
 
-            this.regionMultList = regionMultList;
+            this.spawnModifiersList = spawnModifiersList;
 
             this.foodToHibernate = foodToHibernate;
             this.maxFood = maxFood;
@@ -76,19 +76,29 @@ namespace PupBase
         public float CalculateWeight(World world, bool debug = false)
         {
             // Check if the pup is in a region. If so, then compare. Otherwise just return spawnWeight.
-            if (world != null && world.game.IsStorySession && regionMultList != null && regionMultList.Count > 0)
+            if (world != null && world.game.IsStorySession && spawnModifiersList != null && spawnModifiersList.Count > 0)
             {
-                foreach (RegionMult regionMult in regionMultList)
+                float tempWeight = spawnWeight;
+                foreach (SpawnModifiers spawnModifiers in spawnModifiersList)
                 {
-                    if (world.region.name == regionMult.regionID)
+                    if (world.region.name == spawnModifiers.regionID)
                     {
+                        tempWeight *= spawnModifiers.multiplier;
                         if (debug)
                         {
-                            Plugin.ModLogger.LogDebug("Spawn weight for " + name + " in " + world.region.name + " is " + spawnWeight * regionMult.multiplier);
+                            Plugin.ModLogger.LogDebug("Spawn weight for " + name + " in " + world.region.name + " is " + tempWeight);
                         }
-                        return spawnWeight * regionMult.multiplier;
+                    }
+                    if (world.game.StoryCharacter.value.Equals(name))
+                    {
+                        tempWeight *= spawnModifiers.multiplier;
+                        if (debug)
+                        {
+                            Plugin.ModLogger.LogDebug("Spawn weight for " + name + " in " + world.game.StoryCharacter + "'s campaign is " + tempWeight);
+                        }
                     }
                 }
+                return tempWeight;
             }
             if (debug)
             {
@@ -97,15 +107,15 @@ namespace PupBase
             return spawnWeight;
         }
 
-        public string RegionMultToString()
+        public string SpawnModifiersToString()
         {
-            if (regionMultList != null && regionMultList.Count > 0)
+            if (spawnModifiersList != null && spawnModifiersList.Count > 0)
             {
                 string str = "{ ";
                 int i = 1;
-                foreach (RegionMult regionMult in regionMultList)
+                foreach (SpawnModifiers spawnModifiers in spawnModifiersList)
                 {
-                    str += regionMult.ToString() + (i < regionMultList.Count ? ", " : "");
+                    str += spawnModifiers.ToString() + (i < spawnModifiersList.Count ? ", " : "");
                     i++;
                 }
                 str += " }";
