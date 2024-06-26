@@ -14,7 +14,10 @@
         {
             orig(self, slugcat, malnourished);
 
-            Plugin.ModLogger.LogDebug(slugcat.value);
+            if (ModOptions.enableDebug.Value)
+            {
+                Plugin.ModLogger.LogDebug(slugcat.value);
+            }
             /*
             StackTrace st = new StackTrace(true);
             for (int i = 0; i < st.FrameCount; i++)
@@ -33,7 +36,10 @@
         {
             if (PupManager.TryGetPupType(slugcat, out var type))
             {
-                //Plugin.ModLogger.LogDebug("returning " + type.name + "'s food: " + type.maxFood + ", " + type.foodToHibernate);
+                if (ModOptions.enableDebug.Value)
+                {
+                    Plugin.ModLogger.LogDebug("returning " + type.name + "'s food: " + type.maxFood + ", " + type.foodToHibernate);
+                }
                 return new IntVector2(type.maxFood, type.foodToHibernate);
             }
             return orig(slugcat);
@@ -41,7 +47,7 @@
 
         public static bool SlugcatStats_HiddenOrUnplayableSlugcat(On.SlugcatStats.orig_HiddenOrUnplayableSlugcat orig, SlugcatStats.Name i)
         {
-            if (PupManager.TryGetPupType(i))
+            if (PupManager.TryGetPupType(i, out var type) && type.hideInMenu)
             {
                 return true;
             }

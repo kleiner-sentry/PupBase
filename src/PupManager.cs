@@ -2,8 +2,7 @@
 {
     public static class PupManager
     {
-        private static int totalWeight = 100;
-        private static List<PupType> pupTypeList = [new PupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup)];
+        private static List<PupType> pupTypeList = [new PupType(Plugin.MOD_NAME, MoreSlugcatsEnums.SlugcatStatsName.Slugpup, regionMultList: new List<PupType.RegionMult> { new PupType.RegionMult("SU", 1.2f) })];
 
         /// <summary>
         /// Register a new PupType. Will return the PupType given. It is recommended that you assign this while your mod is initializing.
@@ -13,16 +12,23 @@
         public static PupType Register(PupType pupType)
         {
             pupTypeList.Add(pupType);
-            totalWeight += pupType.spawnWeight;
             Plugin.ModLogger.LogInfo("Registered: " + pupType.name);
             return pupType;
         }
 
+        /// <summary>
+        /// Grabs the current list of PupTypes registered to PupManager, and returns them in the form of a list.
+        /// </summary>
+        /// <returns>Returns a list of PupTypes.</returns>
         public static List<PupType> GetPupTypeList()
         {
             return pupTypeList;
         }
 
+        /// <summary>
+        /// Grabs the current list of PupTypes registered to PupManager, and returns them in the form of a list of its names.
+        /// </summary>
+        /// <returns>Returns a list of PupType names.</returns>
         public static List<SlugcatStats.Name> GetPupTypeListName()
         {
             List<SlugcatStats.Name> tempList = [];
@@ -33,7 +39,11 @@
             }
             return tempList;
         }
-
+        
+        /// <summary>
+        /// Grabs the current list of PupTypes registered to PupManager, and returns them in the form of a list of strings.
+        /// </summary>
+        /// <returns>Returns a list of PupType names in string form.</returns>
         public static List<string> GetPupTypeListString()
         {
             List<string> tempList = [];
@@ -132,12 +142,20 @@
         }
 
         /// <summary>
-        /// Generates a new PupType if a Puptype isn't already generated. Outputs the assigned PupType.
+        /// Generates a new PupType. Outputs the assigned PupType.
         /// </summary>
         /// <param name="player">Used to gather all necessary data.</param>
         /// <returns>Outputs the assigned PupType.</returns>
         public static PupType GenerateType(Player player)
         {
+            // Calculate total weight.
+            float totalWeight = 0;
+            foreach (PupType type in pupTypeList)
+            {
+                totalWeight += type.CalculateWeight(player.abstractCreature.world);
+            }
+
+            // Generate random number based on ID
             Random.State state = Random.state;
             Random.InitState(player.abstractCreature.ID.RandomSeed);
 
@@ -145,10 +163,11 @@
 
             Random.state = state;
 
-            int sum = 0;
+            // Assign PupType based on weighted probability
+            float sum = 0;
             foreach (PupType type in pupTypeList)
             {
-                sum += type.spawnWeight;
+                sum += type.CalculateWeight(player.abstractCreature.world, ModOptions.enableDebug.Value);
 
                 if (sum >= probability)
                 {

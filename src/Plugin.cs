@@ -5,8 +5,6 @@
     {
         public const string MOD_ID = "Antoneeee.PupBase";
 
-        public static readonly bool LogOutPut = true;
-
         public const string MOD_NAME = "PupBase";
 
         public const string VERSION = "1.0.0";
@@ -27,7 +25,7 @@
             On.RainWorld.OnModsInit += Extras.WrapInit(LoadResources);
             On.RainWorld.OnModsInit += RainWorld_OnModsInit;
             On.RainWorld.PostModsInit += RainWorld_PostModsInit;
-            ModLogger.LogInfo("Initialized");
+            ModLogger.LogInfo("Initialized " + VERSION);
         }
 
         // Load any resources, such as sprites or sounds
@@ -42,7 +40,7 @@
             {
                 if (IsInit) return;
 
-                //ModOptions.RegisterOI();
+                ModOptions.RegisterOI();
                 Hooks.PlayerHooks.Init();
                 Hooks.PlayerStateHooks.Init();
                 Hooks.SlugcatStatsHooks.Init();
@@ -114,7 +112,11 @@
             List<string> list = orig();
             List<string> tempList = PupManager.GetPupTypeListString();
 
-            tempList.Remove(MoreSlugcatsEnums.SlugcatStatsName.Slugpup.value);
+            foreach (string str in list)
+            {
+                tempList.Remove(str);
+            }
+
             list.AddRange(tempList);
 
             return list;
