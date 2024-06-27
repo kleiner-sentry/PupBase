@@ -36,6 +36,10 @@ namespace PupBase
         public int maxFood;
         public bool hideInMenu;
 
+        public delegate void PostStatsConstructionDelegate(SlugcatStats stats, bool malnourished);
+        public event PostStatsConstructionDelegate PostStatsConstruction;
+        internal void StatsConstructed(SlugcatStats stats, bool malnourished) => PostStatsConstruction?.Invoke(stats, malnourished);
+
         /// <summary>
         /// Creates a new PupType.
         /// </summary>
@@ -122,6 +126,33 @@ namespace PupBase
                 return str;
             }
             return null;
+        }
+        
+        /// <summary>
+        /// Set the physical stats of Slugpups with this PupType.
+        /// Any arguments left `null` will be untouched.
+        /// <param name="whenMalnourished"/>The starve state to which these stats apply; if `true`, these stats only apply while starving; if `false`, only while not starving; if `null`, it applies to both.</param>
+        /// </summary>
+        public void SetSlugcatStats(bool? whenMalnourished = null,
+            float? runSpeedFac = null, float? bodyWeightFac = null, float? generalVisibilityBonus = null,
+            float? visualStealthInSneakMode = null, float? loudnessFac = null, float? lungsFac = null,
+            float? poleClimbSpeedFac = null, float? corridorClimbSpeedFac = null)
+        {
+            void Delegate(SlugcatStats stats, bool malnourished)
+            {
+                if (malnourished == (whenMalnourished ?? malnourished))
+                {
+                    stats.runspeedFac = runSpeedFac ?? stats.runspeedFac;
+                    stats.bodyWeightFac = bodyWeightFac ?? stats.bodyWeightFac;
+                    stats.generalVisibilityBonus = generalVisibilityBonus ?? stats.generalVisibilityBonus;
+                    stats.visualStealthInSneakMode = visualStealthInSneakMode ?? stats.visualStealthInSneakMode;
+                    stats.loudnessFac = loudnessFac ?? stats.loudnessFac;
+                    stats.lungsFac = lungsFac ?? stats.lungsFac;
+                    stats.poleClimbSpeedFac = poleClimbSpeedFac ?? stats.poleClimbSpeedFac;
+                    stats.corridorClimbSpeedFac = corridorClimbSpeedFac ?? stats.corridorClimbSpeedFac;
+                }
+            }
+            PostStatsConstruction += Delegate;
         }
     }
 }

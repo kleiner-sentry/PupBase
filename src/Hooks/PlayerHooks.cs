@@ -6,6 +6,7 @@
         {
             IL.Player.SetMalnourished += IL_Player_SetMalnourished;
             IL.Player.NPCStats.ctor += IL_NPCStats_ctor;
+            On.SlugcatStats.ctor += SlugcatStats_ctor;
         }
 
         public static void IL_Player_SetMalnourished(ILContext il)
@@ -54,7 +55,23 @@
             {
                 Plugin.ModLogger.LogError(e);
             }
-            
+
+        }
+
+        public static void SlugcatStats_ctor(On.SlugcatStats.orig_ctor orig, SlugcatStats self, SlugcatStats.Name slugcat, bool malnourished)
+        {
+            orig(self, slugcat, malnourished);
+            try
+            {
+                if (PupManager.GetPupType(slugcat) is PupType pupType)
+                {
+                    pupType.StatsConstructed(self, malnourished);
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.ModLogger.LogError(e);
+            }
         }
     }
 }
