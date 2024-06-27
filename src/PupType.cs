@@ -36,9 +36,9 @@ namespace PupBase
         public int maxFood;
         public bool hideInMenu;
 
-        public delegate void PostPlayerConstructionDelegate(Player player);
-        public event PostPlayerConstructionDelegate PostPlayerConstruction;
-        internal void PlayerConstructed(Player player) => PostPlayerConstruction?.Invoke(player);
+        public delegate void PostStatsConstructionDelegate(SlugcatStats stats, bool malnourished);
+        public event PostStatsConstructionDelegate PostStatsConstruction;
+        internal void StatsConstructed(SlugcatStats stats, bool malnourished) => PostStatsConstruction?.Invoke(stats, malnourished);
 
         /// <summary>
         /// Creates a new PupType.
@@ -130,24 +130,29 @@ namespace PupBase
         
         /// <summary>
         /// Set the physical stats of Slugpups with this PupType.
+        /// Any arguments left `null` will be untouched.
+        /// <param name="whenMalnourished"/>The starve state to which these stats apply; if `true`, these stats only apply while starving; if `false`, only while not starving; if `null`, it applies to both.</param>
         /// </summary>
-        public void SetSlugcatStats(float runSpeedFac = 1f, float bodyWeightFac = 1f, float generalVisibilityBonus = 0f,
-            float visualStealthInSneakMode = 0.5f, float loudnessFac = 1f, float lungsFac = 1f,
-            float poleClimbSpeedFac = 1f, float corridorClimbSpeedFac = 1f)
+        public void SetSlugcatStats(bool? whenMalnourished = null,
+            float? runSpeedFac = null, float? bodyWeightFac = null, float? generalVisibilityBonus = null,
+            float? visualStealthInSneakMode = null, float? loudnessFac = null, float? lungsFac = null,
+            float? poleClimbSpeedFac = null, float? corridorClimbSpeedFac = null)
         {
-            void Delegate(Player player)
+            void Delegate(SlugcatStats stats, bool malnourished)
             {
-                var stats = player.slugcatStats;
-                stats.runspeedFac = runSpeedFac;
-                stats.bodyWeightFac = bodyWeightFac;
-                stats.generalVisibilityBonus = generalVisibilityBonus;
-                stats.visualStealthInSneakMode = visualStealthInSneakMode;
-                stats.loudnessFac = loudnessFac;
-                stats.lungsFac = lungsFac;
-                stats.poleClimbSpeedFac = poleClimbSpeedFac;
-                stats.corridorClimbSpeedFac = corridorClimbSpeedFac;
+                if (malnourished == (whenMalnourished ?? malnourished))
+                {
+                    stats.runspeedFac = runSpeedFac ?? stats.runspeedFac;
+                    stats.bodyWeightFac = bodyWeightFac ?? stats.bodyWeightFac;
+                    stats.generalVisibilityBonus = generalVisibilityBonus ?? stats.generalVisibilityBonus;
+                    stats.visualStealthInSneakMode = visualStealthInSneakMode ?? stats.visualStealthInSneakMode;
+                    stats.loudnessFac = loudnessFac ?? stats.loudnessFac;
+                    stats.lungsFac = lungsFac ?? stats.lungsFac;
+                    stats.poleClimbSpeedFac = poleClimbSpeedFac ?? stats.poleClimbSpeedFac;
+                    stats.corridorClimbSpeedFac = corridorClimbSpeedFac ?? stats.corridorClimbSpeedFac;
+                }
             }
-            PostPlayerConstruction += Delegate;
+            PostStatsConstruction += Delegate;
         }
     }
 }

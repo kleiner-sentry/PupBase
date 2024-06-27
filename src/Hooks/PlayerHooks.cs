@@ -6,7 +6,7 @@
         {
             IL.Player.SetMalnourished += IL_Player_SetMalnourished;
             IL.Player.NPCStats.ctor += IL_NPCStats_ctor;
-            On.Player.ctor += Player_ctor;
+            On.SlugcatStats.ctor += SlugcatStats_ctor;
         }
 
         public static void IL_Player_SetMalnourished(ILContext il)
@@ -58,14 +58,14 @@
 
         }
 
-        public static void Player_ctor(On.Player.orig_ctor orig, Player self, AbstractCreature abstractCreature, World world)
+        public static void SlugcatStats_ctor(On.SlugcatStats.orig_ctor orig, SlugcatStats self, SlugcatStats.Name slugcat, bool malnourished)
         {
-            orig(self, abstractCreature, world);
+            orig(self, slugcat, malnourished);
             try
             {
-                if (self.isSlugpup && self.isNPC && self.PupState() is { } state)
+                if (PupManager.GetPupType(slugcat) is PupType pupType)
                 {
-                    state.pupType.PlayerConstructed(self);
+                    pupType.StatsConstructed(self, malnourished);
                 }
             }
             catch (Exception e)
