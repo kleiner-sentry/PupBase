@@ -6,23 +6,23 @@ namespace PupBase
     {
         public class SpawnModifiers
         {
-            public string regionID;
+            public string str;
             public float multiplier;
 
             /// <summary>
-            /// Allows you to choose if your Puptype will be chosen more or less freqently in specific regions.
+            /// Allows you to choose if your Puptype will be chosen more or less freqently in specific regions/campaigns.
             /// </summary>
-            /// <param name="regionID"></param>
-            /// <param name="multiplier"></param>
-            public SpawnModifiers(string regionID, float multiplier)
+            /// <param name="str">which region/campaign this PupType will spawn more/less frequently in.</param>
+            /// <param name="multiplier">How much this modifier will multiply it's spawn weight.</param>
+            public SpawnModifiers(string str, float multiplier)
             {
-                this.regionID = regionID;
+                this.str = str;
                 this.multiplier = multiplier;
             }
 
             public override string ToString()
             {
-                return "{ " + regionID + ", " + multiplier + " }";
+                return "{ " + str + ", " + multiplier + " }";
             }
         }
 
@@ -35,6 +35,8 @@ namespace PupBase
         public int foodToHibernate;
         public int maxFood;
         public bool hideInMenu;
+
+        
 
         /// <summary>
         /// Creates a new PupType.
@@ -58,6 +60,7 @@ namespace PupBase
                 Plugin.ModLogger.LogWarning(this.modName + ", Please assign a name!!");
                 this.name = MoreSlugcatsEnums.SlugcatStatsName.Slugpup;
             }
+
             this.spawnWeight = spawnWeight;
 
             this.spawnModifiersList = spawnModifiersList;
@@ -65,6 +68,49 @@ namespace PupBase
             this.foodToHibernate = foodToHibernate;
             this.maxFood = maxFood;
             this.hideInMenu = hideInMenu;
+        }
+
+        /// <summary>
+        /// Allows you to easily set this pups stats. Completely optional and wont modify anything unless used by your mod. -- There is an alterantive function to this, which can be found in the Player class. It's called PupBase_SetPhysicalStats.
+        /// </summary>
+        /// <param name="whenMalnourished"></param>
+        /// <param name="runSpeedFac"></param>
+        /// <param name="bodyWeightFac"></param>
+        /// <param name="generalVisibilityBonus"></param>
+        /// <param name="visualStealthInSneakMode"></param>
+        /// <param name="loudnessFac"></param>
+        /// <param name="lungsFac"></param>
+        /// <param name="throwingSkill"></param>
+        /// <param name="poleClimbSpeedFac"></param>
+        /// <param name="corridorClimbSpeedFac"></param>
+        public void SetSlugcatStats(
+            bool? whenMalnourished = null,
+            float? runSpeedFac = null,
+            float? bodyWeightFac = null,
+            float? generalVisibilityBonus = null,
+            float? visualStealthInSneakMode = null,
+            float? loudnessFac = null,
+            float? lungsFac = null,
+            int? throwingSkill = null,
+            float? poleClimbSpeedFac = null,
+            float? corridorClimbSpeedFac = null)
+        {
+            void Delegate(SlugcatStats stats, bool malnourished)
+            {
+                if (malnourished == (whenMalnourished ?? malnourished))
+                {
+                    stats.runspeedFac = runSpeedFac ?? 0.8f;
+                    stats.bodyWeightFac = bodyWeightFac ?? (malnourished ? 0.45f : 0.65f);
+                    stats.generalVisibilityBonus = generalVisibilityBonus ?? -0.2f;
+                    stats.visualStealthInSneakMode = visualStealthInSneakMode ?? 0.6f;
+                    stats.loudnessFac = loudnessFac ?? 0.5f;
+                    stats.lungsFac = lungsFac ?? 0.8f;
+                    stats.throwingSkill = throwingSkill ?? 0;
+                    stats.poleClimbSpeedFac = poleClimbSpeedFac ?? 0.8f;
+                    stats.corridorClimbSpeedFac = corridorClimbSpeedFac ?? 0.8f;
+                }
+                stats.PupStats().PostStatsConstruction += Delegate;
+            }
         }
 
         /// <summary>
@@ -81,7 +127,7 @@ namespace PupBase
                 float tempWeight = spawnWeight;
                 foreach (SpawnModifiers spawnModifiers in spawnModifiersList)
                 {
-                    if (world.region.name == spawnModifiers.regionID)
+                    if (world.region.name == spawnModifiers.str)
                     {
                         tempWeight *= spawnModifiers.multiplier;
                         if (debug)
@@ -89,7 +135,7 @@ namespace PupBase
                             Plugin.ModLogger.LogDebug("Spawn weight for " + name + " in " + world.region.name + " is " + tempWeight);
                         }
                     }
-                    if (world.game.StoryCharacter.value.Equals(name))
+                    if (world.game.StoryCharacter.value.Equals(spawnModifiers.str))
                     {
                         tempWeight *= spawnModifiers.multiplier;
                         if (debug)

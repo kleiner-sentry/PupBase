@@ -4,6 +4,8 @@
     {
         public static void Init()
         {
+            On.Player.NPCStats.ctor += Player_NPCStats_ctor;
+
             IL.Player.SetMalnourished += IL_Player_SetMalnourished;
             IL.Player.NPCStats.ctor += IL_NPCStats_ctor;
         }
@@ -25,6 +27,16 @@
                 Plugin.ModLogger.LogError(e);
             }
 
+        }
+
+        public static void Player_NPCStats_ctor(On.Player.NPCStats.orig_ctor orig, Player.NPCStats self, Player player)
+        {
+            orig(self, player);
+
+            if (player.PupType() == MoreSlugcatsEnums.SlugcatStatsName.Slugpup)
+            {
+                player.PupBase_SetPhysicalStats();
+            }
         }
 
         public static void IL_NPCStats_ctor(ILContext il)

@@ -30,6 +30,17 @@
                 Plugin.ModLogger.LogDebug(" Line Number: {0}" + sf.GetFileLineNumber());
             }
             */
+            try
+            {
+                if (PupManager.TryGetPupType(slugcat))
+                {
+                    self.PupStats().StatsConstructed(self, malnourished);
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.ModLogger.LogError(e);
+            }
         }
 
         public static IntVector2 SlugcatStats_SlugcatFoodMeter(On.SlugcatStats.orig_SlugcatFoodMeter orig, SlugcatStats.Name slugcat)
