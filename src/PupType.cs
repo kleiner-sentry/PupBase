@@ -36,6 +36,10 @@ namespace PupBase
         public int maxFood;
         public bool hideInMenu;
 
+        public delegate void PostPlayerConstructionDelegate(Player player);
+        public event PostPlayerConstructionDelegate PostPlayerConstruction;
+        internal void PlayerConstructed(Player player) => PostPlayerConstruction?.Invoke(player);
+
         /// <summary>
         /// Creates a new PupType.
         /// </summary>
@@ -122,6 +126,28 @@ namespace PupBase
                 return str;
             }
             return null;
+        }
+        
+        /// <summary>
+        /// Set the physical stats of Slugpups with this PupType.
+        /// </summary>
+        public void SetSlugcatStats(float runSpeedFac = 1f, float bodyWeightFac = 1f, float generalVisibilityBonus = 0f,
+            float visualStealthInSneakMode = 0.5f, float loudnessFac = 1f, float lungsFac = 1f,
+            float poleClimbSpeedFac = 1f, float corridorClimbSpeedFac = 1f)
+        {
+            void Delegate(Player player)
+            {
+                var stats = player.slugcatStats;
+                stats.runspeedFac = runSpeedFac;
+                stats.bodyWeightFac = bodyWeightFac;
+                stats.generalVisibilityBonus = generalVisibilityBonus;
+                stats.visualStealthInSneakMode = visualStealthInSneakMode;
+                stats.loudnessFac = loudnessFac;
+                stats.lungsFac = lungsFac;
+                stats.poleClimbSpeedFac = poleClimbSpeedFac;
+                stats.corridorClimbSpeedFac = corridorClimbSpeedFac;
+            }
+            PostPlayerConstruction += Delegate;
         }
     }
 }

@@ -6,6 +6,7 @@
         {
             IL.Player.SetMalnourished += IL_Player_SetMalnourished;
             IL.Player.NPCStats.ctor += IL_NPCStats_ctor;
+            On.Player.ctor += Player_ctor;
         }
 
         public static void IL_Player_SetMalnourished(ILContext il)
@@ -54,7 +55,23 @@
             {
                 Plugin.ModLogger.LogError(e);
             }
-            
+
+        }
+
+        public static void Player_ctor(On.Player.orig_ctor orig, Player self, AbstractCreature abstractCreature, World world)
+        {
+            orig(self, abstractCreature, world);
+            try
+            {
+                if (self.isSlugpup && self.isNPC && self.PupState() is { } state)
+                {
+                    state.pupType.PlayerConstructed(self);
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.ModLogger.LogError(e);
+            }
         }
     }
 }
