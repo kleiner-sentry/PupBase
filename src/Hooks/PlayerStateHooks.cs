@@ -17,6 +17,7 @@
             text += "Type<cC>" + (self.PupType() != null ? self.PupType().value : "NULL") + "<cB>";
             return text;
         }
+
         public static void PlayerNPCState_LoadFromString(On.MoreSlugcats.PlayerNPCState.orig_LoadFromString orig, PlayerNPCState self, string[] s)
         {
             orig(self, s);

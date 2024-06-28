@@ -28,20 +28,19 @@ namespace PupBase
 
         public string modName;
         public SlugcatStats.Name name;
-        public int defaultSpawnWeight;
-
-        public Dictionary<string, Configurable<int>> config = new Dictionary<string, Configurable<int>>();
-
-        public int spawnWeight
-        {
-            get { return config.TryGetValue(config.Keys.First(), out var value) ? value.Value : defaultSpawnWeight; }
-        }
 
         public List<SpawnModifiers> spawnModifiersList;
 
         public int foodToHibernate;
         public int maxFood;
         public bool hideInMenu;
+
+        public int defaultSpawnWeight;
+        public Dictionary<string, Configurable<int>> config = new Dictionary<string, Configurable<int>>();
+        public int spawnWeight
+        {
+            get { return config.TryGetValue(config.Keys.First(), out var value) ? value.Value : defaultSpawnWeight; }
+        }
 
         /// <summary>
         /// Creates a new PupType.

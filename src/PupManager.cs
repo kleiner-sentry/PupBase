@@ -142,7 +142,7 @@
         }
 
         /// <summary>
-        /// Generates a new PupType. Outputs the assigned PupType.
+        /// Generates a new PupType. Outputs the assigned PupType. If no pup is generated, it'll output a regular Slugpup instead.
         /// </summary>
         /// <param name="player">Used to gather all necessary data.</param>
         /// <returns>Outputs the assigned PupType.</returns>
@@ -174,7 +174,7 @@
                     return type;
                 }
             }
-            return null;
+            return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
         }
 
     }
