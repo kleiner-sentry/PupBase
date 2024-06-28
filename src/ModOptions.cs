@@ -1,6 +1,6 @@
 ﻿namespace PupBase
 {
-    public class ModOptions : OptionsTemplate
+    public class ModOptions : OptionInterface
     {
         public static ModOptions Instance { get; } = new();
         public static void RegisterOI()
@@ -24,12 +24,7 @@
 
             Tabs = [ settingsTab, registryTab ];
 
-            InitSettings(0);
-            InitRegistry(1);
-        }
-
-        private void InitSettings(int tabIndex)
-        {
+            // Initialize Settings
             UIelement[] opts =
             [
                 new OpLabel(new Vector2(200f, 550f), new Vector2(200, 30), text: "Settings", bigText: true),
@@ -40,60 +35,43 @@
                 new OpCheckBox(enableVariations, new Vector2(525f, 475f))
             ];
 
-            Tabs[tabIndex].AddItems(opts);
-        }
+            Tabs[0].AddItems(opts);
 
-        private void InitRegistry(int tabIndex)
-        {
-            var vsp = new OpScrollBox(Tabs[tabIndex], 2000);
+            // Initialize Registry
+            var vsp = new OpScrollBox(Tabs[1], 2000);
 
             List<UIelement> PupUIList = new List<UIelement> { };
 
-            int interval = 14;
-            int intervalBetweenCMs = 30;
+            int interval = 25;
+            int intervalBetweenPTs = 45;
             int i = 0;
-            float vSize = (interval * 5 + intervalBetweenCMs) * PupManager.GetPupTypeList().Count + 100;
+            float vSize = (interval * 5 + intervalBetweenPTs) * PupManager.GetPupTypeList().Count + 100;
 
             PupUIList.Add(new OpLabel(new Vector2(200f, 550f), new Vector2(200, 30), text: "Registry", bigText: true));
             PupUIList.Add(new OpLabel(new Vector2(200f, 525f), new Vector2(200, 30), text: "----------------------------------------------------", bigText: true));
-            PupUIList.Add(new OpLabel(50f, 500f, PupManager.GetPupTypeList().Count + " Pup type" + (PupManager.GetPupTypeList().Count > 1 ? "s registered." : " registered.")));
+            PupUIList.Add(new OpLabel(50f, 500f, PupManager.GetPupTypeList().Count + " Pup type" + (PupManager.GetPupTypeList().Count > 1 ? "s registered." : " registered.") + " Note: any changes made outside Rainworld requires a restart!"));
 
             foreach (PupType type in PupManager.GetPupTypeList())
             {
-                float vpos = vSize - 100 - i * (interval * 4 + intervalBetweenCMs);
+                float vpos = vSize - 100 - i * (interval * 5 + intervalBetweenPTs);
 
-                /*
-                customSpawnWeightArray[i, 0] = Instance.config.Bind("", Mathf.Clamp(type.spawnWeight, int.MinValue, int.MaxValue));
-                customSpawnWeightArray[i, 1] = type;
-                */
-
-                /*
-                AddTextLabel("ID: " + type.name.value);
-                DrawTextLabels(ref Tabs[tabIndex]);
-                AddTextLabel("Default Spawn Weight: " + type.spawnWeight.ToString());
-                DrawTextLabels(ref Tabs[tabIndex]);
-                AddSlider((Configurable<int>)customSpawnWeightArray[i, 0], "Spawn Weight");
-                DrawFloatSliders(ref Tabs[tabIndex]);  
-                */
-
-                PupUIList.Add(new OpLabel(50, 575 - vpos, "Mod:"));
-                PupUIList.Add(new OpLabel(175, 575 - vpos, type.modName));
-                PupUIList.Add(new OpLabel(50, 575 - vpos - interval, "Name:"));
-                PupUIList.Add(new OpLabel(175, 575 - vpos - interval, type.name.value));
-                PupUIList.Add(new OpLabel(50, 575 - vpos - interval * 2, "Spawn Weight:"));
-                PupUIList.Add(new OpLabel(175, 575 - vpos - interval * 2, type.spawnWeight.ToString()));
-                PupUIList.Add(new OpLabel(50, 575 - vpos - interval * 3, "Food:"));
-                PupUIList.Add(new OpLabel(175, 575 - vpos - interval * 3, type.foodToHibernate + " - " + type.maxFood));
-                PupUIList.Add(new OpLabel(50, 575 - vpos - interval * 4, "Spawn Modifiers:"));
-                PupUIList.Add(new OpLabel(175, 575 - vpos - interval * 4, (type.SpawnModifiersToString() != null ? type.SpawnModifiersToString() : "N/A")));
-                //customMeowList.Add(weightUpDown);
+                PupUIList.Add(new OpLabel(50, 625 - vpos, "Mod:"));
+                PupUIList.Add(new OpLabel(175, 625 - vpos, type.modName));
+                PupUIList.Add(new OpLabel(50, 625 - vpos - interval, "Name:"));
+                PupUIList.Add(new OpLabel(175, 625 - vpos - interval, type.name.value));
+                PupUIList.Add(new OpLabel(50, 625 - vpos - interval * 2, "Spawn Weight:"));
+                PupUIList.Add(new OpUpdown(type.config.Values.First(), new Vector2(175, 620 - vpos - interval * 2), 75));
+                PupUIList.Add(new OpLabel(255, 625 - vpos - interval * 2, "Default: " + type.defaultSpawnWeight.ToString()));
+                PupUIList.Add(new OpLabel(50, 625 - vpos - interval * 3, "Food:"));
+                PupUIList.Add(new OpLabel(175, 625 - vpos - interval * 3, type.foodToHibernate + " - " + type.maxFood));
+                PupUIList.Add(new OpLabel(50, 625 - vpos - interval * 4, "Spawn Modifiers:"));
+                PupUIList.Add(new OpLabel(175, 625 - vpos - interval * 4, (type.SpawnModifiersToString() != null ? type.SpawnModifiersToString() : "N/A")));
 
                 i++;
             }
 
             vsp.contentSize = vSize;
             vsp.AddItems(PupUIList.ToArray());
-
         }
     }
 }

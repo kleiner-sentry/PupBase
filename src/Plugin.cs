@@ -61,6 +61,10 @@
             {
                 if (PostIsInit) return;
 
+                foreach (PupType type in PupManager.GetPupTypeList())
+                {
+                    type.config[type.config.Keys.First()] = ModOptions.Instance.config.Bind(type.config.Keys.First(), type.defaultSpawnWeight, new ConfigurableInfo("Set how common this type of pup will be.", new ConfigAcceptableRange<int>(type.name == MoreSlugcatsEnums.SlugcatStatsName.Slugpup ? 1 : 0, 1000)));
+                }
                 
                 if (ModManager.ActiveMods.Any(mod => mod.id == "dressmyslugcat"))
                 {

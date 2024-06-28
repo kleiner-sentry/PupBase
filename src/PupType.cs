@@ -28,15 +28,20 @@ namespace PupBase
 
         public string modName;
         public SlugcatStats.Name name;
-        public int spawnWeight;
+        public int defaultSpawnWeight;
+
+        public Dictionary<string, Configurable<int>> config = new Dictionary<string, Configurable<int>>();
+
+        public int spawnWeight
+        {
+            get { return config.TryGetValue(config.Keys.First(), out var value) ? value.Value : defaultSpawnWeight; }
+        }
 
         public List<SpawnModifiers> spawnModifiersList;
 
         public int foodToHibernate;
         public int maxFood;
         public bool hideInMenu;
-
-        
 
         /// <summary>
         /// Creates a new PupType.
@@ -47,7 +52,7 @@ namespace PupBase
         /// <param name="foodToHibernate">(OPTIONAL) The amount of food needed to hibernate.</param>
         /// <param name="maxFood">(OPTIONAL) The maximum food this pup can hold.</param>
         /// <param name="hideInMenu">(OPTIONAL) Hide this pup in the story menu.</param>
-        /// <param name="regionMultList">(OPTIONAL) Allows you to choose which region this type will be chosen more or less freqently in.</param>
+        /// <param name="spawnModifiersList">(OPTIONAL) Allows you to choose which region/campaign this type will be chosen more or less freqently in.</param>
         public PupType(string modName, SlugcatStats.Name name, int spawnWeight = 100, int foodToHibernate = 2, int maxFood = 3, bool hideInMenu = true, List<SpawnModifiers> spawnModifiersList = null)
         {
             this.modName = string.IsNullOrEmpty(modName) ? this.modName = "???" : modName;
@@ -60,57 +65,15 @@ namespace PupBase
                 Plugin.ModLogger.LogWarning(this.modName + ", Please assign a name!!");
                 this.name = MoreSlugcatsEnums.SlugcatStatsName.Slugpup;
             }
-
-            this.spawnWeight = spawnWeight;
+            defaultSpawnWeight = spawnWeight;
 
             this.spawnModifiersList = spawnModifiersList;
 
             this.foodToHibernate = foodToHibernate;
             this.maxFood = maxFood;
             this.hideInMenu = hideInMenu;
-        }
 
-        /// <summary>
-        /// Allows you to easily set this pups stats. Completely optional and wont modify anything unless used by your mod. -- There is an alterantive function to this, which can be found in the Player class. It's called PupBase_SetPhysicalStats.
-        /// </summary>
-        /// <param name="whenMalnourished"></param>
-        /// <param name="runSpeedFac"></param>
-        /// <param name="bodyWeightFac"></param>
-        /// <param name="generalVisibilityBonus"></param>
-        /// <param name="visualStealthInSneakMode"></param>
-        /// <param name="loudnessFac"></param>
-        /// <param name="lungsFac"></param>
-        /// <param name="throwingSkill"></param>
-        /// <param name="poleClimbSpeedFac"></param>
-        /// <param name="corridorClimbSpeedFac"></param>
-        public void SetSlugcatStats(
-            bool? whenMalnourished = null,
-            float? runSpeedFac = null,
-            float? bodyWeightFac = null,
-            float? generalVisibilityBonus = null,
-            float? visualStealthInSneakMode = null,
-            float? loudnessFac = null,
-            float? lungsFac = null,
-            int? throwingSkill = null,
-            float? poleClimbSpeedFac = null,
-            float? corridorClimbSpeedFac = null)
-        {
-            void Delegate(SlugcatStats stats, bool malnourished)
-            {
-                if (malnourished == (whenMalnourished ?? malnourished))
-                {
-                    stats.runspeedFac = runSpeedFac ?? 0.8f;
-                    stats.bodyWeightFac = bodyWeightFac ?? (malnourished ? 0.45f : 0.65f);
-                    stats.generalVisibilityBonus = generalVisibilityBonus ?? -0.2f;
-                    stats.visualStealthInSneakMode = visualStealthInSneakMode ?? 0.6f;
-                    stats.loudnessFac = loudnessFac ?? 0.5f;
-                    stats.lungsFac = lungsFac ?? 0.8f;
-                    stats.throwingSkill = throwingSkill ?? 0;
-                    stats.poleClimbSpeedFac = poleClimbSpeedFac ?? 0.8f;
-                    stats.corridorClimbSpeedFac = corridorClimbSpeedFac ?? 0.8f;
-                }
-                stats.PupStats().PostStatsConstruction += Delegate;
-            }
+            config.Add(string.Format("config{0}", name), null);
         }
 
         /// <summary>
