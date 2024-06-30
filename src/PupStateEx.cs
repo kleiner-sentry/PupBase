@@ -8,7 +8,6 @@ namespace PupBase
     public class PupStateEx
     {
         public PupType pupType;
-        public SlugcatStats.Name type;
     }
 
     public static class PlayerStateExtention
@@ -26,14 +25,14 @@ namespace PupBase
         public static PupStateEx PupState(this Player self) => cwtState.GetValue(self.State as PlayerState, _ => new PupStateEx());
 
         /// <summary>
-        /// Returns the type variable stored in PupStateEx
+        /// Returns the name of the PupType stored in PupStateEx
         /// </summary>
-        public static SlugcatStats.Name PupType(this PlayerState self) => self.PupState().type;
+        public static PupType PupType(this PlayerState self) => self.PupState().pupType;
 
         /// <summary>
-        /// Returns the type variable stored in PupStateEx
+        /// Returns the name of the PupType stored in PupStateEx
         /// </summary>
-        public static SlugcatStats.Name PupType(this Player self) => self.PupState().type;
+        public static PupType PupType(this Player self) => self.PupState().pupType;
 
     }
 }

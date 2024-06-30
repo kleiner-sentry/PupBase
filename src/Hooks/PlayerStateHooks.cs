@@ -14,7 +14,7 @@
         public static string PlayerNPCState_ToString(On.MoreSlugcats.PlayerNPCState.orig_ToString orig, PlayerNPCState self)
         {
             string text = orig(self);
-            text += "Type<cC>" + (self.PupType() != null ? self.PupType().value : "NULL") + "<cB>";
+            text += "Type<cC>" + (self.PupType() != null ? self.PupType().name.value : "NULL") + "<cB>";
             return text;
         }
 
@@ -30,8 +30,13 @@
                         if (PupManager.TryGetPupTypeFromString(array[1], out var type))
                         {
                             self.PupState().pupType = type;
-                            self.PupState().type = type.name;
                             Plugin.ModLogger.LogInfo("Assigned from save " + self.player.ID.ToString() + " Type " + type.name);
+                        }
+                        break;
+                    case "SlugcatCharacter":
+                        if (Plugin.BeastMasterPupExtras && !array[1].Equals("Slugpup"))
+                        {
+                            self.PupState().pupType = PupManager.GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
                         }
                         break;
                 }
@@ -52,7 +57,7 @@
                 foodCurs.Emit(OpCodes.Ldarg_0); // self
                 foodCurs.EmitDelegate((SlugcatStats.Name slugpup, PlayerNPCState self) =>   // If pupNPCState.variant != null, return variant, else return slugpup
                 {
-                    return self.PupType() != null ? self.PupType() : slugpup;
+                    return self.PupType() != null ? self.PupType().name : slugpup;
                 }); 
             }
         }

@@ -33,20 +33,23 @@
         <Reference Include="..\lib\Newtonsoft.Json.dll">
           <Private>false</Private>
         </Reference>
-        <Reference Include="..\lib\SlugBase.dll">
-          <Private>false</Private>
-        </Reference>
         <Reference Include="..\lib\UnityEngine.dll">
           <Private>false</Private>
+        </Reference>
+        <Reference Include="DevConsole">
+          <HintPath>..\lib\DevConsole.dll</HintPath>
         </Reference>
         <Reference Include="DressMySlugcat">
           <HintPath>..\lib\DressMySlugcat.dll</HintPath>
         </Reference>
-        <Reference Include="ImprovedInput">
-          <HintPath>..\lib\ImprovedInput.dll</HintPath>
-        </Reference>
         <Reference Include="Assembly-CSharp">
           <HintPath>..\lib\PUBLIC-Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="Pearlcat">
+          <HintPath>..\lib\Pearlcat.dll</HintPath>
+        </Reference>
+        <Reference Include="SlugBase">
+          <HintPath>..\lib\SlugBase.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.CoreModule">
           <HintPath>..\lib\UnityEngine.CoreModule.dll</HintPath>

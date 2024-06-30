@@ -1,4 +1,6 @@
-﻿namespace PupBase
+﻿using System.Data.Common;
+
+namespace PupBase
 {
     [BepInPlugin(MOD_ID, MOD_NAME, VERSION)]
     class Plugin : BaseUnityPlugin
@@ -16,6 +18,8 @@
         private bool PostIsInit = false;
 
         public static bool BeastMasterPupExtras = false;
+
+        public static bool Pearlcat = false;
 
         public static BepInEx.Logging.ManualLogSource ModLogger;
 
@@ -60,42 +64,24 @@
             try
             {
                 if (PostIsInit) return;
-
-                foreach (PupType type in PupManager.GetPupTypeList())
-                {
-                    type.config[type.config.Keys.First()] = ModOptions.Instance.config.Bind(type.config.Keys.First(), type.defaultSpawnWeight, new ConfigurableInfo("Set how common this type of pup will be.", new ConfigAcceptableRange<int>(0, 1000)));
-                }
                 
                 if (ModManager.ActiveMods.Any(mod => mod.id == "dressmyslugcat"))
                 {
                     SetupDMSSprites();
                 }
-                /*
-                if (ModManager.ActiveMods.Any(mod => mod.id == "yeliah.slugpupFieldtrip"))
-                {
-                    SlugpupSafari = true;
-                }
-                if (ModManager.ActiveMods.Any(mod => mod.id == "rgbpups"))
-                {
-                    RainbowPups = true;
-                }
                 if (ModManager.ActiveMods.Any(mod => mod.id == "pearlcat"))
                 {
                     Pearlcat = true;
                 }
-                */
                 if (ModManager.ActiveMods.Any(mod => mod.id == "NoirCatto.BeastMasterPupExtras"))
                 {
                     BeastMasterPupExtras = true;
                 }
-                /*
                 if (ModManager.ActiveMods.Any(mod => mod.id == "slime-cubed.devconsole"))
                 {
-                    PupsPlusModCompat.RegisterSpawnPupCommand();
-                    Logger.LogInfo("spawn_pup command registered");
-                    //PupsPlusModCompat.RegisterPupsPlusDebugCommands();
+                    RegisterSpawnPupCommand();
+                     ModLogger.LogInfo("spawn_pup command registered");
                 }
-                */
 
                 PostIsInit = true;
             }
@@ -106,9 +92,74 @@
             }
         }
 
+        public static void RegisterSpawnPupCommand()
+        {
+            string[] tags = ["Voidsea", "Winter", "Ignorecycle", "TentacleImmune", "Lavasafe", "AlternateForm", "PreCycle", "Night"];
+            string[] types = [..PupManager.GetPupTypeListString().ToArray(), "Random"];
+            string[] arguments = null;
+            new CommandBuilder("spawn_pup")
+                .RunGame((game, args) =>
+                {
+                    try
+                    {
+                        arguments = args;
+                        EntityID? id = null;
+                        PupType pupType = null;
+                        foreach (string arg in args)
+                        {
+                            if (arg.Contains('.'))
+                            {
+                                try
+                                {
+                                    id = EntityID.FromString(arg);
+                                }
+                                catch
+                                {
+                                    if (int.TryParse(arg, out int idNum))
+                                        id = new EntityID(0, idNum);
+                                }
+                            }
+
+                            else if (PupManager.TryGetPupTypeFromString(arg, out var type))
+                            {
+                                pupType = type;
+                            }
+                        }
+
+                        var abstractPup = new AbstractCreature(game.world, StaticWorld.GetCreatureTemplate(MoreSlugcatsEnums.CreatureTemplateType.SlugNPC), null, GameConsole.TargetPos.Room.realizedRoom.GetWorldCoordinate(GameConsole.TargetPos.Pos), id ?? game.GetNewID());
+                        (abstractPup.state as PlayerState).PupState().pupType = pupType ?? PupManager.GenerateType(abstractPup);
+                        if (args.Length != 0)
+                        {
+                            abstractPup.spawnData = "{" + string.Join(",", args.Select((string tag) => tags.FirstOrDefault((string testTag) => tag.Equals(testTag, StringComparison.OrdinalIgnoreCase)) ?? tag)) + "}";
+                        }
+                        abstractPup.setCustomFlags();
+
+                        GameConsole.TargetPos.Room.AddEntity(abstractPup);
+                        if (GameConsole.TargetPos.Room.realizedRoom != null)
+                        {
+                            abstractPup.RealizeInRoom();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        GameConsole.WriteLine("Failed to spawn pup! See console log for more info.");
+                        ModLogger.LogWarning("pup failed:" + ex.ToString());
+                    }
+                })
+                .Help("spawn_pup [ID?] [type?] [args...]")
+                .AutoComplete(arguments =>
+                {
+                    if (arguments.Length == 0) return types;
+                    else if (arguments.Length == 1 && arguments[0].Contains('.')) return types;
+                    else if (arguments.Length == 1 && !arguments[0].Contains('.') || arguments.Length == 2) return tags;
+                    else return null;
+                })
+                .Register();
+        }
+
         private void SetupDMSSprites()
         {
-            new Hook(typeof(Utils).GetProperty("ValidSlugcatNames", BindingFlags.Static | BindingFlags.Public).GetGetMethod(), new Func<Func<List<string>>, List<string>>(DMSValidPupNames));
+            new Hook(typeof(DressMySlugcat.Utils).GetProperty("ValidSlugcatNames", BindingFlags.Static | BindingFlags.Public).GetGetMethod(), new Func<Func<List<string>>, List<string>>(DMSValidPupNames));
         }
 
         private List<string> DMSValidPupNames(Func<List<string>> orig)

@@ -13,8 +13,6 @@
 
         public static Configurable<bool> enableDebug = Instance.config.Bind(nameof(enableDebug), false, new ConfigurableInfo("Allow the mod to send information to the console.", null, "", "Enable Debug mode"));
 
-        public static Configurable<bool> enableVariations = Instance.config.Bind(nameof(enableVariations), true, new ConfigurableInfo("Enable pups to spawn with varying stats based in their personality and pup stats.", null, "", "Enable Pup Variations"));
-
         public override void Initialize()
         {
             base.Initialize();
@@ -31,8 +29,6 @@
                 new OpLabel(new Vector2(200f, 525f), new Vector2(200, 30), text: "----------------------------------------------------", bigText: true),
                 new OpLabel(50f, 475f, "Enable Debug Mode: "),
                 new OpCheckBox(enableDebug, new Vector2(200f, 475f)),
-                new OpLabel(375f, 475f, "Enable Pup Variations: "),
-                new OpCheckBox(enableVariations, new Vector2(525f, 475f))
             ];
 
             Tabs[0].AddItems(opts);

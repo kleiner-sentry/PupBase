@@ -4,6 +4,8 @@
     {
         private static List<PupType> pupTypeList = [new PupType(Plugin.MOD_NAME, MoreSlugcatsEnums.SlugcatStatsName.Slugpup, spawnModifiersList: new List<PupType.SpawnModifiers> { new PupType.SpawnModifiers("SU", 1.2f) })];
 
+        public static List<int> PupIDBlacklist = [ 1000, 1001, 2220, 3118, 4118, 765];
+
         /// <summary>
         /// Register a new PupType. Will return the PupType given. It is recommended that you assign this while your mod is initializing.
         /// </summary>
@@ -20,10 +22,7 @@
         /// Grabs the current list of PupTypes registered to PupManager, and returns them in the form of a list.
         /// </summary>
         /// <returns>Returns a list of PupTypes.</returns>
-        public static List<PupType> GetPupTypeList()
-        {
-            return pupTypeList;
-        }
+        public static List<PupType> GetPupTypeList() => pupTypeList;
 
         /// <summary>
         /// Grabs the current list of PupTypes registered to PupManager, and returns them in the form of a list of its names.
@@ -146,18 +145,20 @@
         /// </summary>
         /// <param name="player">Used to gather all necessary data.</param>
         /// <returns>Outputs the assigned PupType.</returns>
-        public static PupType GenerateType(Player player)
+        public static PupType GenerateType(AbstractCreature abstractCreature)
         {
+            if (PupIDBlacklist.Contains(abstractCreature.ID.RandomSeed)) return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
+
             // Calculate total weight.
             float totalWeight = 0;
             foreach (PupType type in pupTypeList)
             {
-                totalWeight += type.CalculateWeight(player.abstractCreature.world);
+                totalWeight += type.CalculateWeight(abstractCreature.world);
             }
 
             // Generate random number based on ID
             Random.State state = Random.state;
-            Random.InitState(player.abstractCreature.ID.RandomSeed);
+            Random.InitState(abstractCreature.ID.RandomSeed);
 
             float probability = Random.value * totalWeight;
 
@@ -167,7 +168,7 @@
             float sum = 0;
             foreach (PupType type in pupTypeList)
             {
-                sum += type.CalculateWeight(player.abstractCreature.world, ModOptions.enableDebug.Value);
+                sum += type.CalculateWeight(abstractCreature.world, ModOptions.enableDebug.Value);
 
                 if (sum >= probability)
                 {

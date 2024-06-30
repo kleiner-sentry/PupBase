@@ -1,6 +1,4 @@
-﻿using static PupBase.PupType;
-
-namespace PupBase
+﻿namespace PupBase
 {
     public class PupType
     {
@@ -73,6 +71,7 @@ namespace PupBase
             this.hideInMenu = hideInMenu;
 
             config.Add(string.Format("config{0}", name), null);
+            config[config.Keys.First()] = ModOptions.Instance.config.Bind(config.Keys.First(), defaultSpawnWeight, new ConfigurableInfo("Set how common this type of pup will be.", new ConfigAcceptableRange<int>(0, 1000)));
         }
 
         /// <summary>
