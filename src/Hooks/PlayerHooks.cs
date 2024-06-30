@@ -36,7 +36,7 @@
                 statsCurs.Emit(OpCodes.Ldarg_1);
                 statsCurs.EmitDelegate(delegate (Player player)
                 {
-                    if (player.isSlugpup && player.isNPC && player.PupState().pupType == null)
+                    if (player.isSlugpup && player.isNPC && player.PupType() == null)
                     {
                         player.PupState().pupType = PupManager.GenerateType(player.abstractCreature);
                         Plugin.ModLogger.LogInfo("Generated " + player.abstractCreature.ID.ToString() + " Type " + player.PupType().name);

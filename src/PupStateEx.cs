@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Serialization;
-
-namespace PupBase
+﻿namespace PupBase
 {
     /// <summary>
     /// Holds custom variables in PlayerState.

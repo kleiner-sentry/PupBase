@@ -1,6 +1,4 @@
-﻿using System.Data.Common;
-
-namespace PupBase
+﻿namespace PupBase
 {
     [BepInPlugin(MOD_ID, MOD_NAME, VERSION)]
     class Plugin : BaseUnityPlugin
@@ -18,8 +16,6 @@ namespace PupBase
         private bool PostIsInit = false;
 
         public static bool BeastMasterPupExtras = false;
-
-        public static bool Pearlcat = false;
 
         public static BepInEx.Logging.ManualLogSource ModLogger;
 
@@ -155,7 +151,7 @@ namespace PupBase
 
         private void SetupDMSSprites()
         {
-            new Hook(typeof(DressMySlugcat.Utils).GetProperty("ValidSlugcatNames", BindingFlags.Static | BindingFlags.Public).GetGetMethod(), new Func<Func<List<string>>, List<string>>(DMSValidPupNames));
+            new Hook(typeof(Utils).GetProperty("ValidSlugcatNames", BindingFlags.Static | BindingFlags.Public).GetGetMethod(), new Func<Func<List<string>>, List<string>>(DMSValidPupNames));
         }
 
         private List<string> DMSValidPupNames(Func<List<string>> orig)
