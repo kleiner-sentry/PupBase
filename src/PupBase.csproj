@@ -45,9 +45,6 @@
         <Reference Include="Assembly-CSharp">
           <HintPath>..\lib\PUBLIC-Assembly-CSharp.dll</HintPath>
         </Reference>
-        <Reference Include="Pearlcat">
-          <HintPath>..\lib\Pearlcat.dll</HintPath>
-        </Reference>
         <Reference Include="SlugBase">
           <HintPath>..\lib\SlugBase.dll</HintPath>
         </Reference>

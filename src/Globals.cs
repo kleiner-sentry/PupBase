@@ -18,7 +18,6 @@ global using SlugBase.Features;
 global using SlugBase.DataTypes;
 global using static SlugBase.Features.FeatureTypes;
 global using static PhysicalObject;
-global using Pearlcat;
 global using DevConsole;
 global using DevConsole.Commands;
 global using DressMySlugcat;
