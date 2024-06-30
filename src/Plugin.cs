@@ -69,10 +69,6 @@ namespace PupBase
                 {
                     SetupDMSSprites();
                 }
-                if (ModManager.ActiveMods.Any(mod => mod.id == "pearlcat"))
-                {
-                    Pearlcat = true;
-                }
                 if (ModManager.ActiveMods.Any(mod => mod.id == "NoirCatto.BeastMasterPupExtras"))
                 {
                     BeastMasterPupExtras = true;
