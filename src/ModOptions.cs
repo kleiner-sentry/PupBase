@@ -56,8 +56,15 @@
                 PupUIList.Add(new OpLabel(50, 625 - vpos - interval, "Name:"));
                 PupUIList.Add(new OpLabel(175, 625 - vpos - interval, type.name.value));
                 PupUIList.Add(new OpLabel(50, 625 - vpos - interval * 2, "Spawn Weight:"));
-                PupUIList.Add(new OpUpdown(type.config, new Vector2(175, 620 - vpos - interval * 2), 75));
-                PupUIList.Add(new OpLabel(255, 625 - vpos - interval * 2, "Default: " + type.defaultSpawnWeight.ToString()));
+                if (type.config != null)
+                {
+                    PupUIList.Add(new OpUpdown(type.config, new Vector2(175, 620 - vpos - interval * 2), 75));
+                    PupUIList.Add(new OpLabel(255, 625 - vpos - interval * 2, "Default: " + type.defaultSpawnWeight.ToString()));
+                }
+                else
+                {
+                    PupUIList.Add(new OpLabel(175, 625 - vpos - interval * 2, type.spawnWeight.ToString()));
+                }
                 PupUIList.Add(new OpLabel(50, 625 - vpos - interval * 3, "Food:"));
                 PupUIList.Add(new OpLabel(175, 625 - vpos - interval * 3, type.foodToHibernate + " - " + type.maxFood));
                 PupUIList.Add(new OpLabel(50, 625 - vpos - interval * 4, "Spawn Modifiers:"));

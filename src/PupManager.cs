@@ -2,7 +2,7 @@
 {
     public static class PupManager
     {
-        private static List<PupType> pupTypeList = [new PupType(Plugin.MOD_NAME, MoreSlugcatsEnums.SlugcatStatsName.Slugpup, spawnModifiersList: new List<PupType.SpawnModifiers> { new PupType.SpawnModifiers("SU", 1.2f) })];
+        private static List<PupType> pupTypeList = [new PupType(Plugin.MOD_NAME, MoreSlugcatsEnums.SlugcatStatsName.Slugpup, spawnModifiersList: new List<PupType.SpawnModifiers> { new PupType.SpawnModifiers("SU", 1, 1.2f) })];
 
         public static List<int> PupIDBlacklist = [ 1000, 1001, 2220, 3118, 4118, 765];
 
