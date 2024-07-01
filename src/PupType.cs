@@ -34,10 +34,10 @@
         public bool hideInMenu;
 
         public int defaultSpawnWeight;
-        public Dictionary<string, Configurable<int>> config = new Dictionary<string, Configurable<int>>();
+        public Configurable<int> config;
         public int spawnWeight
         {
-            get { return config.TryGetValue(config.Keys.First(), out var value) ? value.Value : defaultSpawnWeight; }
+            get { return config != null ? config.Value : defaultSpawnWeight; }
         }
 
         /// <summary>
@@ -60,7 +60,7 @@
             else
             {
                 Plugin.ModLogger.LogWarning(this.modName + ", Please assign a name!!");
-                this.name = MoreSlugcatsEnums.SlugcatStatsName.Slugpup;
+                this.name = new SlugcatStats.Name("Testpup");
             }
             defaultSpawnWeight = spawnWeight;
 
@@ -70,8 +70,7 @@
             this.maxFood = maxFood;
             this.hideInMenu = hideInMenu;
 
-            config.Add(string.Format("config{0}", name), null);
-            config[config.Keys.First()] = ModOptions.Instance.config.Bind(config.Keys.First(), defaultSpawnWeight, new ConfigurableInfo("Set how common this type of pup will be.", new ConfigAcceptableRange<int>(0, 1000)));
+            config = ModOptions.Instance.config.Bind("SpawnWeight" + this.name, defaultSpawnWeight, new ConfigurableInfo("Set how common this type of pup will be.", new ConfigAcceptableRange<int>(0, 1000)));
         }
 
         /// <summary>
