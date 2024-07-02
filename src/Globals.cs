@@ -15,6 +15,7 @@ global using BepInEx;
 global using UnityEngine;
 global using Random = UnityEngine.Random;
 global using static PhysicalObject;
+global using Pearlcat;
 global using DevConsole;
 global using DevConsole.Commands;
 global using DressMySlugcat;

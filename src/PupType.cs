@@ -37,6 +37,8 @@
 
         public int foodToHibernate;
         public int maxFood;
+
+        public bool allowSpawningInArena;
         public bool hideInMenu;
 
         public int defaultSpawnWeight;
@@ -55,9 +57,10 @@
         /// <param name="foodToHibernate">(OPTIONAL) The amount of food needed to hibernate.</param>
         /// <param name="maxFood">(OPTIONAL) The maximum food this pup can hold.</param>
         /// <param name="hideInMenu">(OPTIONAL) Hide this pup in the story menu.</param>
+        /// <param name="allowSpawningInArena">(OPTIONAL) Intended for those who use a custom campaign, and wish to prevent users from allowing this pup from spawning in Arena.</param>
         /// <param name="disableCustomSpawnWeight">(OPTIONAL) Intended for those who use a custom campaign, and wish to prevent users from modifying its spawn weight.</param>
         /// <param name="spawnModifiersList">(OPTIONAL) Allows you to choose which region/campaign this type will be chosen more or less freqently in.</param>
-        public PupType(string modName, SlugcatStats.Name name, int spawnWeight = 100, int foodToHibernate = 2, int maxFood = 3, bool hideInMenu = true, bool disableCustomSpawnWeight = false, List<SpawnModifiers> spawnModifiersList = null)
+        public PupType(string modName, SlugcatStats.Name name, int spawnWeight = 100, int foodToHibernate = 2, int maxFood = 3, bool hideInMenu = true, bool allowSpawningInArena = true, bool disableCustomSpawnWeight = false, List<SpawnModifiers> spawnModifiersList = null)
         {
             this.modName = string.IsNullOrEmpty(modName) ? this.modName = "???" : modName;
             if (name != null)
@@ -75,6 +78,7 @@
 
             this.foodToHibernate = foodToHibernate;
             this.maxFood = maxFood;
+            this.allowSpawningInArena = allowSpawningInArena;
             this.hideInMenu = hideInMenu;
 
             config = disableCustomSpawnWeight ? null : ModOptions.Instance.config.Bind("SpawnWeight" + this.name, defaultSpawnWeight, new ConfigurableInfo("Set how common this type of pup will be.", new ConfigAcceptableRange<int>(0, 1000)));
@@ -124,21 +128,17 @@
                         }
                     }
                 }
-                if (isExclusiveCampaign && !inExclusiveCampaign)
-                {
-                    return 0;
-                }
-                if (isExclusiveRegion && !inExclusiveCampaign)
+                if ((isExclusiveCampaign && !inExclusiveCampaign) || (isExclusiveRegion && !inExclusiveCampaign) || (!allowSpawningInArena && world.game.IsArenaSession))
                 {
                     return 0;
                 }
                 return tempWeight;
             }
-            if (debug)
+            if (!(!allowSpawningInArena && world.game.IsArenaSession) && debug)
             {
                 Plugin.ModLogger.LogDebug("Spawn weight for " + name + " is " + spawnWeight);
             }
-            return spawnWeight;
+            return (!allowSpawningInArena && world.game.IsArenaSession) ? 0 : spawnWeight;
         }
 
         public string SpawnModifiersToString()

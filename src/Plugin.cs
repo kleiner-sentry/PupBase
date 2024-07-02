@@ -157,7 +157,7 @@
 
         private void SetupDMSSprites()
         {
-            new Hook(typeof(Utils).GetProperty("ValidSlugcatNames", BindingFlags.Static | BindingFlags.Public).GetGetMethod(), new Func<Func<List<string>>, List<string>>(DMSValidPupNames));
+            new Hook(typeof(DressMySlugcat.Utils).GetProperty("ValidSlugcatNames", BindingFlags.Static | BindingFlags.Public).GetGetMethod(), new Func<Func<List<string>>, List<string>>(DMSValidPupNames));
         }
 
         private List<string> DMSValidPupNames(Func<List<string>> orig)
