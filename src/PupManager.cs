@@ -147,7 +147,7 @@
         /// <returns>Outputs the assigned PupType.</returns>
         public static PupType GenerateType(AbstractCreature abstractCreature)
         {
-            if (PupIDBlacklist.Contains(abstractCreature.ID.RandomSeed)) return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
+            if ((abstractCreature.realizedCreature != null && Plugin.Pearlcat && Pearlcat.Hooks.IsPearlpup(abstractCreature.realizedCreature as Player)) || PupIDBlacklist.Contains(abstractCreature.ID.RandomSeed)) return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
 
             // Calculate total weight.
             float totalWeight = 0;

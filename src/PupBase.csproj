@@ -45,6 +45,9 @@
         <Reference Include="Assembly-CSharp">
           <HintPath>..\lib\PUBLIC-Assembly-CSharp.dll</HintPath>
         </Reference>
+        <Reference Include="Pearlcat">
+          <HintPath>..\lib\Pearlcat.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine.CoreModule">
           <HintPath>..\lib\UnityEngine.CoreModule.dll</HintPath>
         </Reference>

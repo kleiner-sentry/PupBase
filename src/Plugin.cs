@@ -17,6 +17,8 @@
 
         public static bool BeastMasterPupExtras = false;
 
+        public static bool Pearlcat = false;
+
         public static BepInEx.Logging.ManualLogSource ModLogger;
 
         public void OnEnable()
@@ -68,6 +70,10 @@
                 if (ModManager.ActiveMods.Any(mod => mod.id == "NoirCatto.BeastMasterPupExtras"))
                 {
                     BeastMasterPupExtras = true;
+                }
+                if (ModManager.ActiveMods.Any(mod => mod.id == "pearlcat"))
+                {
+                    Pearlcat = true;
                 }
                 if (ModManager.ActiveMods.Any(mod => mod.id == "slime-cubed.devconsole"))
                 {
