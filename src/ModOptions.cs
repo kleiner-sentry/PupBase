@@ -59,11 +59,11 @@
                 if (type.config != null)
                 {
                     PupUIList.Add(new OpUpdown(type.config, new Vector2(175, 620 - vpos - interval * 2), 75));
-                    PupUIList.Add(new OpLabel(255, 625 - vpos - interval * 2, "Default: " + type.defaultSpawnWeight.ToString() + (type.allowSpawningInArena ? " - Won't spawn in Arena." : "")));
+                    PupUIList.Add(new OpLabel(255, 625 - vpos - interval * 2, "Default: " + type.defaultSpawnWeight.ToString() + (!type.allowSpawningInArena ? " - Won't spawn in Arena." : "")));
                 }
                 else
                 {
-                    PupUIList.Add(new OpLabel(175, 625 - vpos - interval * 2, type.spawnWeight.ToString()));
+                    PupUIList.Add(new OpLabel(175, 625 - vpos - interval * 2, type.spawnWeight.ToString() + (!type.allowSpawningInArena ? " - Won't spawn in Arena." : "")));
                 }
                 PupUIList.Add(new OpLabel(50, 625 - vpos - interval * 3, "Food:"));
                 PupUIList.Add(new OpLabel(175, 625 - vpos - interval * 3, type.foodToHibernate + " - " + type.maxFood));
