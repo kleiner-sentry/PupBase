@@ -1,13 +1,17 @@
-﻿namespace PupBase
+﻿using static PupBase.PupType;
+
+namespace PupBase
 {
     public class PupType
     {
         public class SpawnModifiers
         {
+            public PupType pupType;
             public string str;
             public int type;
             public float multiplier;
             public bool exclusive;
+            public bool unique;
 
             /// <summary>
             /// Allows you to choose if your Puptype will be chosen more or less freqently in specific regions/campaigns.
@@ -15,18 +19,20 @@
             /// <param name="str">Can represent either the region ID or the name of the campaign the pup is in.</param>
             /// <param name="type">0 = Campaign, 1 = Region</param>
             /// <param name="multiplier">How much this modifier will multiply its spawn weight.</param>
-            /// <param name="exclusive">Will this pup only spawn in this region/campaign?</param>
-            public SpawnModifiers(string str, int type, float multiplier, bool exclusive = false)
+            /// <param name="exclusive">A tag used to make this specific campaign/region only allow your kind of pup. If another PupType has this exclusive tag in the same region as this is used in, they'll both spawn.</param>
+            /// <param name="unique">Make this kind of pup only spawn in this campaign/region.</param>
+            public SpawnModifiers(string str, int type, float multiplier, bool exclusive = false, bool unique = false)
             {
                 this.str = str;
                 this.type = type;
                 this.multiplier = multiplier;
                 this.exclusive = exclusive;
+                this.unique = unique;
             }
 
-            public override string ToString()
+            public string ToStringCustom()
             {
-                return "{ " + str + ", " + multiplier + (exclusive ? ", Exclusive" : "") + " }";
+                return "{ " + str + ", " + multiplier + (exclusive ? ", Exclusive" : "") + (unique ? ", Unique" : "") + " }";
             }
         }
 
@@ -74,7 +80,14 @@
             }
             defaultSpawnWeight = spawnWeight;
 
-            this.spawnModifiersList = spawnModifiersList;
+            if (spawnModifiersList != null)
+            {
+                this.spawnModifiersList = spawnModifiersList;
+                foreach (SpawnModifiers modifiers in this.spawnModifiersList)
+                {
+                    modifiers.pupType = this;
+                }
+            }
 
             this.foodToHibernate = foodToHibernate;
             this.maxFood = maxFood;
@@ -90,54 +103,70 @@
         /// <param name="world">Used to calculate if the pup is currently in a region.</param>
         /// <param name="debug">Outputs the result to the log.</param>
         /// <returns>Returns the proper spawn weight.</returns>
-        public float CalculateWeight(World world, bool debug = false)
+        public float CalculateWeight(World world)
         {
-            // Check if the pup is in a region. If so, then compare. Otherwise just return spawnWeight.
-            if (world != null && world.game.IsStorySession && spawnModifiersList != null && spawnModifiersList.Count > 0)
+            if (world != null && !world.game.IsArenaSession)
             {
-                float tempWeight = spawnWeight;
-                bool isExclusiveCampaign = false;
+                // Exclusives
+                bool otherExclusiveCampaign = false;
+                bool otherExclusiveRegion = false;
                 bool inExclusiveCampaign = false;
-                bool isExclusiveRegion = false;
                 bool inExclusiveRegion = false;
-                foreach (SpawnModifiers spawnModifiers in spawnModifiersList)
+                // Uniques
+                bool isUniqueCampaign = false;
+                bool inUniqueCampaign = false;
+                bool isUniqueRegion = false;
+                bool inUniqueRegion = false;
+                // Calculate
+                float tempWeight = spawnWeight;
+                // Exclusives
+                foreach (SpawnModifiers modifiers in PupManager.spawnModifiersList)
                 {
-                    if (spawnModifiers.exclusive)
+                    if (modifiers.pupType == this)
                     {
-                        isExclusiveCampaign = spawnModifiers.type == 0 ? true : isExclusiveCampaign;
-                        isExclusiveRegion = spawnModifiers.type == 1 ? true : isExclusiveRegion;
+                        if (modifiers.type == 0)
+                        {
+                            if (modifiers.unique) isUniqueCampaign = true;
+                            if (world.game.StoryCharacter.value == modifiers.str)
+                            {
+                                if (modifiers.exclusive) inExclusiveCampaign = true;
+                                inUniqueCampaign = true;
+                                tempWeight *= modifiers.multiplier;
+                            }
+                        }
+                        if (modifiers.type == 1)
+                        {
+                            if (modifiers.unique) isUniqueRegion = true;
+                            if (world.region.name == modifiers.str)
+                            {
+                                if (modifiers.exclusive) inExclusiveRegion = true;
+                                inUniqueRegion = true;
+                                tempWeight *= modifiers.multiplier;
+                            }
+                        }
                     }
-                    if (world.game.StoryCharacter.value.Equals(spawnModifiers.str) && spawnModifiers.type == 0)
-                    {
-                        tempWeight *= spawnModifiers.multiplier;
-                        inExclusiveCampaign = spawnModifiers.exclusive ? true : inExclusiveCampaign;
 
-                        if (debug)
-                        {
-                            Plugin.ModLogger.LogDebug("Spawn weight for " + name + " in " + world.game.StoryCharacter + "'s campaign is " + tempWeight);
-                        }
-                    }
-                    if (world.region.name.Equals(spawnModifiers.str) && spawnModifiers.type == 1)
+                    if (modifiers.pupType != this && modifiers.exclusive)
                     {
-                        tempWeight *= spawnModifiers.multiplier;
-                        inExclusiveRegion = spawnModifiers.exclusive ? true : inExclusiveRegion;
-                        
-                        if (debug)
+                        if (modifiers.type == 0 && modifiers.str == world.game.StoryCharacter.value)
                         {
-                            Plugin.ModLogger.LogDebug("Spawn weight for " + name + " in " + world.region.name + " is " + tempWeight);
+                            otherExclusiveCampaign = true;
+                        }
+                        if (modifiers.type == 1 && modifiers.str == world.region.name)
+                        {
+                            otherExclusiveRegion = true;
                         }
                     }
                 }
-                if ((isExclusiveCampaign && !inExclusiveCampaign) || (isExclusiveRegion && !inExclusiveCampaign) || (!allowSpawningInArena && world.game.IsArenaSession))
+                bool disabled = false;
+                if ((otherExclusiveCampaign && !inExclusiveCampaign) || (otherExclusiveRegion && !inExclusiveRegion) || (isUniqueCampaign && !inUniqueCampaign) || (isUniqueRegion && !inUniqueRegion))
                 {
-                    return 0;
+                    disabled = true;
                 }
-                return tempWeight;
+                if (ModOptions.enableDebug.Value) Plugin.ModLogger.LogDebug(disabled ? name + " Will not spawn. Because: " + ((otherExclusiveCampaign && !inExclusiveCampaign) ? "Spawned in an excluded campaign." : (otherExclusiveRegion && !inExclusiveRegion) ? "Spawned in an excluded region." : (isUniqueCampaign && !inUniqueCampaign) ? "Didn't spawn in its unique campaign." : (isUniqueRegion && !inUniqueRegion) ? "Didn't spawn in its unique region." : "No reason...How did this happen?") : name + "s spawnWeight is: " + tempWeight);
+                return disabled ? 0 : tempWeight;
             }
-            if (!(!allowSpawningInArena && world.game.IsArenaSession) && debug)
-            {
-                Plugin.ModLogger.LogDebug("Spawn weight for " + name + " is " + spawnWeight);
-            }
+            if (ModOptions.enableDebug.Value) Plugin.ModLogger.LogDebug((!allowSpawningInArena && world.game.IsArenaSession) ? name + " Will not spawn in Arena mode." : name + "s spawnWeight is: " + spawnWeight);
             return (!allowSpawningInArena && world.game.IsArenaSession) ? 0 : spawnWeight;
         }
 
@@ -149,7 +178,7 @@
                 int i = 1;
                 foreach (SpawnModifiers spawnModifiers in spawnModifiersList)
                 {
-                    str += spawnModifiers.ToString() + (i < spawnModifiersList.Count ? ", " : "");
+                    str += spawnModifiers.ToStringCustom() + (i < spawnModifiersList.Count ? ", " : "");
                     i++;
                 }
                 str += " }";

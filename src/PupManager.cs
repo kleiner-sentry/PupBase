@@ -1,8 +1,12 @@
-﻿namespace PupBase
+﻿using UnityEngine.Assertions.Must;
+
+namespace PupBase
 {
     public static class PupManager
     {
         private static List<PupType> pupTypeList = [new PupType(Plugin.MOD_NAME, MoreSlugcatsEnums.SlugcatStatsName.Slugpup, spawnModifiersList: new List<PupType.SpawnModifiers> { new PupType.SpawnModifiers("SU", 1, 1.2f) })];
+
+        internal static List<PupType.SpawnModifiers> spawnModifiersList = new List<PupType.SpawnModifiers>();
 
         public static List<int> PupIDBlacklist = [ 1000, 1001, 2220, 3118, 4118, 765];
 
@@ -14,6 +18,10 @@
         public static PupType Register(PupType pupType)
         {
             pupTypeList.Add(pupType);
+            if (pupType.spawnModifiersList != null)
+            {
+                spawnModifiersList.AddRange(pupType.spawnModifiersList);
+            }
             Plugin.ModLogger.LogInfo("Registered: " + pupType.name);
             return pupType;
         }
@@ -151,9 +159,11 @@
 
             // Calculate total weight.
             float totalWeight = 0;
+            List<float> listedWeights = new List<float>();
             foreach (PupType type in pupTypeList)
             {
-                totalWeight += type.CalculateWeight(abstractCreature.world);
+                listedWeights.Add(type.CalculateWeight(abstractCreature.world));
+                totalWeight += listedWeights.Last();
             }
 
             // Generate random number based on ID
@@ -166,14 +176,16 @@
 
             // Assign PupType based on weighted probability
             float sum = 0;
+            int i = 0;
             foreach (PupType type in pupTypeList)
             {
-                sum += type.CalculateWeight(abstractCreature.world, ModOptions.enableDebug.Value);
+                sum += listedWeights.ElementAt(i);
 
                 if (sum >= probability)
                 {
                     return type;
                 }
+                i++;
             }
             return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
         }
