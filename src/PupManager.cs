@@ -155,14 +155,18 @@ namespace PupBase
         /// <returns>Outputs the assigned PupType.</returns>
         public static PupType GenerateType(AbstractCreature abstractCreature)
         {
-            if ((Plugin.Pearlcat && IsPearlpup(abstractCreature)) || PupIDBlacklist.Contains(abstractCreature.ID.RandomSeed)) return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
+            if ((Plugin.Pearlcat && IsPearlpup(abstractCreature)) || PupIDBlacklist.Contains(abstractCreature.ID.RandomSeed))
+            {
+                Plugin.ModLogger.LogInfo("This particular pup is excluded from generating a PupType. Defaulting to Slugpup.");
+                return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
+            }
 
             // Calculate total weight.
             float totalWeight = 0;
             List<float> listedWeights = new List<float>();
             foreach (PupType type in pupTypeList)
             {
-                listedWeights.Add(type.CalculateWeight(abstractCreature.world));
+                listedWeights.Add(type.CalculateWeight(abstractCreature.world, ModOptions.enableDebug.Value));
                 totalWeight += listedWeights.Last();
             }
 
@@ -187,6 +191,7 @@ namespace PupBase
                 }
                 i++;
             }
+            Plugin.ModLogger.LogInfo("Failed to generate a PupType. Defaulting to Slugpup.");
             return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
         }
 

@@ -101,16 +101,16 @@ namespace PupBase
         /// Calculates its actual spawn weight if it's in a region that it's supposed to spawn more/less in.
         /// </summary>
         /// <param name="world">Used to calculate if the pup is currently in a region.</param>
-        /// <param name="debug">Outputs the result to the log.</param>
+        /// <param name="debug">Outputs the results to the log.</param>
         /// <returns>Returns the proper spawn weight.</returns>
-        public float CalculateWeight(World world)
+        public float CalculateWeight(World world, bool debug = false)
         {
             if (world != null && !world.game.IsArenaSession)
             {
                 // Exclusives
                 bool otherExclusiveCampaign = false;
-                bool otherExclusiveRegion = false;
                 bool inExclusiveCampaign = false;
+                bool otherExclusiveRegion = false;
                 bool inExclusiveRegion = false;
                 // Uniques
                 bool isUniqueCampaign = false;
@@ -163,10 +163,10 @@ namespace PupBase
                 {
                     disabled = true;
                 }
-                if (ModOptions.enableDebug.Value) Plugin.ModLogger.LogDebug(disabled ? name + " Will not spawn. Because: " + ((otherExclusiveCampaign && !inExclusiveCampaign) ? "Spawned in an excluded campaign." : (otherExclusiveRegion && !inExclusiveRegion) ? "Spawned in an excluded region." : (isUniqueCampaign && !inUniqueCampaign) ? "Didn't spawn in its unique campaign." : (isUniqueRegion && !inUniqueRegion) ? "Didn't spawn in its unique region." : "No reason...How did this happen?") : name + "s spawnWeight is: " + tempWeight);
+                if (debug) Plugin.ModLogger.LogDebug(disabled ? name + " Will not spawn. Because: " + ((otherExclusiveCampaign && !inExclusiveCampaign) ? "Spawned in an excluded campaign." : (otherExclusiveRegion && !inExclusiveRegion) ? "Spawned in an excluded region." : (isUniqueCampaign && !inUniqueCampaign) ? "Didn't spawn in its unique campaign." : (isUniqueRegion && !inUniqueRegion) ? "Didn't spawn in its unique region." : "No reason...How did this happen?") : name + "s spawnWeight is: " + tempWeight);
                 return disabled ? 0 : tempWeight;
             }
-            if (ModOptions.enableDebug.Value) Plugin.ModLogger.LogDebug((!allowSpawningInArena && world.game.IsArenaSession) ? name + " Will not spawn in Arena mode." : name + "s spawnWeight is: " + spawnWeight);
+            if (debug) Plugin.ModLogger.LogDebug((!allowSpawningInArena && world.game.IsArenaSession) ? name + " Will not spawn in Arena mode." : name + "s spawnWeight is: " + spawnWeight);
             return (!allowSpawningInArena && world.game.IsArenaSession) ? 0 : spawnWeight;
         }
 

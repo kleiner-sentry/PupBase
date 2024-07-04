@@ -130,6 +130,7 @@ namespace PupBase
 
                             var abstractPup = new AbstractCreature(game.world, StaticWorld.GetCreatureTemplate(MoreSlugcatsEnums.CreatureTemplateType.SlugNPC), null, GameConsole.TargetPos.Room.realizedRoom.GetWorldCoordinate(GameConsole.TargetPos.Pos), id ?? game.GetNewID());
                             (abstractPup.state as PlayerState).PupState().pupType = pupType ?? PupManager.GenerateType(abstractPup);
+                            ModLogger.LogInfo(pupType != null ? "Assigned " + abstractPup.ID.ToString() + " Type " + (abstractPup.state as PlayerState).PupType().name : "Generated " + abstractPup.ID.ToString() + " Type " + (abstractPup.state as PlayerState).PupType().name);
                             abstractPup.spawnData = "{" + string.Join(",", args.Select((string tag) => tags.FirstOrDefault((string testTag) => tag.Equals(testTag, StringComparison.OrdinalIgnoreCase)) ?? tag)) + "}";
                             abstractPup.setCustomFlags();
 
@@ -143,6 +144,7 @@ namespace PupBase
                         {
                             var abstractPup = new AbstractCreature(game.world, StaticWorld.GetCreatureTemplate(MoreSlugcatsEnums.CreatureTemplateType.SlugNPC), null, GameConsole.TargetPos.Room.realizedRoom.GetWorldCoordinate(GameConsole.TargetPos.Pos), game.GetNewID());
                             (abstractPup.state as PlayerState).PupState().pupType = PupManager.GenerateType(abstractPup);
+                            ModLogger.LogInfo("Generated " + abstractPup.ID.ToString() + " Type " + (abstractPup.state as PlayerState).PupType().name);
 
                             GameConsole.TargetPos.Room.AddEntity(abstractPup);
                             if (GameConsole.TargetPos.Room.realizedRoom != null)
