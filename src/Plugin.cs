@@ -9,7 +9,7 @@ namespace PupBase
 
         public const string MOD_NAME = "PupBase";
 
-        public const string VERSION = "1.1.0";
+        public const string VERSION = "1.1.2";
 
         public const string AUTHORS = "Antoneeee";
 
@@ -20,6 +20,8 @@ namespace PupBase
         public static bool BeastMasterPupExtras = false;
 
         public static bool Pearlcat = false;
+
+        public static bool SlugpupStuff = false;
 
         public static BepInEx.Logging.ManualLogSource ModLogger;
 
@@ -76,6 +78,10 @@ namespace PupBase
                 if (ModManager.ActiveMods.Any(mod => mod.id == "pearlcat"))
                 {
                     Pearlcat = true;
+                }
+                if (ModManager.ActiveMods.Any(mod => mod.id == "iwantbread.slugpupstuff"))
+                {
+                    SlugpupStuff = true;
                 }
                 if (ModManager.ActiveMods.Any(mod => mod.id == "slime-cubed.devconsole"))
                 {
@@ -142,8 +148,11 @@ namespace PupBase
                             }
 
                             AbstractCreature abstractPup = new AbstractCreature(game.world, StaticWorld.GetCreatureTemplate(MoreSlugcatsEnums.CreatureTemplateType.SlugNPC), null, GameConsole.TargetPos.Room.realizedRoom.GetWorldCoordinate(GameConsole.TargetPos.Pos), id ?? game.GetNewID());
-                            (abstractPup.state as PlayerState).PupState().pupType = pupType ?? PupManager.GenerateType(abstractPup);
-                            ModLogger.LogInfo(pupType != null ? "Assigned " + abstractPup.ID.ToString() + " Type " + (abstractPup.state as PlayerState).PupType().name : "Generated " + abstractPup.ID.ToString() + " Type " + (abstractPup.state as PlayerState).PupType().name);
+                            if (pupType != null && abstractPup.state is PlayerState npcState)
+                            {
+                                npcState.PupState().pupType = pupType;
+                                ModLogger.LogInfo("Assigned " + abstractPup.ID.ToString() + " Type " + npcState.PupType().name);
+                            }
                             if (tempTags.Length > 0)
                             {
                                 abstractPup.spawnData = "{" + tempTags.ToString() + "}";
@@ -159,8 +168,6 @@ namespace PupBase
                         else
                         {
                             AbstractCreature abstractPup = new AbstractCreature(game.world, StaticWorld.GetCreatureTemplate(MoreSlugcatsEnums.CreatureTemplateType.SlugNPC), null, GameConsole.TargetPos.Room.realizedRoom.GetWorldCoordinate(GameConsole.TargetPos.Pos), game.GetNewID());
-                            (abstractPup.state as PlayerState).PupState().pupType = PupManager.GenerateType(abstractPup);
-                            ModLogger.LogInfo("Generated " + abstractPup.ID.ToString() + " Type " + (abstractPup.state as PlayerState).PupType().name);
 
                             GameConsole.TargetPos.Room.AddEntity(abstractPup);
                             if (GameConsole.TargetPos.Room.realizedRoom != null)
@@ -175,13 +182,19 @@ namespace PupBase
                         ModLogger.LogWarning(ex.ToString());
                     }
                 })
-                .Help("spawn_slugNPC [ID?] [type?] [args...]")
+                .Help("spawn_slugNPC [type?] [ID?] [args...]")
                 .AutoComplete(arguments =>
                 {
-                    if (arguments.Length == 0) return ["ID.1."];
-                    else if (arguments.Length == 1) return types;
-                    else if (arguments.Length > 1) return tags;
-                    else return null;
+                    bool type = false;
+                    foreach (string argument in arguments)
+                    {
+                        if (PupManager.TryGetPupTypeFromString(argument))
+                        {
+                            type = true;
+                        }
+                    }
+                    if (!type) return types;
+                    else return tags;
                 })
                 .Register();
         }

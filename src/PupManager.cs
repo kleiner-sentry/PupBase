@@ -1,4 +1,5 @@
-﻿using UnityEngine.Assertions.Must;
+﻿using System.Drawing.Drawing2D;
+using UnityEngine.Assertions.Must;
 
 namespace PupBase
 {
@@ -126,6 +127,48 @@ namespace PupBase
         }
 
         /// <summary>
+        /// Searches through all available PupTypes and returns the PupType Found if the puptypes' name is mentioned in the given string.
+        /// </summary>
+        /// <param name="str">The string to compare against.</param>
+        /// <returns>Returns the PupType found if str conmtains a puptypes name.</returns>
+        public static PupType GetPupTypeFromString(string str)
+        {
+            PupType pupType = null;
+            if (pupTypeList != null)
+            {
+                foreach (PupType type in pupTypeList)
+                {
+                    if (str.Contains(type.name.value) || str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase))
+                    {
+                        pupType = type;
+                        break;
+                    }
+                }
+            }
+            return pupType;
+        }
+
+        /// <summary>
+        /// Searches through all available PupTypes and returns true if the puptypes' name is mentioned in the given string.
+        /// </summary>
+        /// <param name="str">The string to compare against.</param>
+        /// <returns>Returns true if str conmtains a puptypes name.</returns>
+        public static bool TryGetPupTypeFromString(string str)
+        {
+            if (pupTypeList != null)
+            {
+                foreach (PupType type in pupTypeList)
+                {
+                    if (str.Contains(type.name.value) || str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Searches through all available PupTypes and returns true if the puptypes' name is mentioned in the given string. Outputs the PupType found.
         /// </summary>
         /// <param name="str">The string to compare against.</param>
@@ -138,7 +181,7 @@ namespace PupBase
             {
                 foreach (PupType type in pupTypeList)
                 {
-                    if (str.Contains(type.name.value))
+                    if (str.Contains(type.name.value) || str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase))
                     {
                         pupType = type;
                         break;
@@ -193,6 +236,47 @@ namespace PupBase
             }
             Plugin.ModLogger.LogInfo("Failed to generate a PupType. Defaulting to Slugpup.");
             return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
+        }
+
+        /// <summary>
+        /// Returns true if Pups+ is enabled, and the mod is currently using this pup.
+        /// </summary>
+        /// <param name="state"></param>
+        /// <returns>True if Variant isn't null.</returns>
+        public static bool IsPupInUseBySlugpupStuff(CreatureState state)
+        {
+            try
+            {
+                if (Plugin.SlugpupStuff && state is PlayerNPCState npcState && npcState.GetPupState().Variant != null)
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Plugin.ModLogger.LogError(ex);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Forces a Pups+ variant to be what you've given. Not recommended.
+        /// </summary>
+        /// <param name="state"></param>
+        public static void OverrideSlugpupStuffVariant(CreatureState state, SlugcatStats.Name? name)
+        {
+            try
+            {
+                if (Plugin.SlugpupStuff && state is PlayerNPCState npcState && npcState.GetPupState() != null)
+                {
+                    npcState.GetPupState().Variant = name;
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.ModLogger.LogError(ex);
+            }
         }
 
         private static bool IsPearlpup(AbstractCreature abstractCreature) => Pearlcat.Hooks.IsPearlpup(abstractCreature);

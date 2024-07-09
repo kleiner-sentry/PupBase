@@ -5,7 +5,7 @@
     /// </summary>
     public class PupStateEx
     {
-        public PupType pupType;
+        public PupType? pupType;
     }
 
     public static class PlayerStateExtention

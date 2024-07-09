@@ -2,6 +2,7 @@
 global using System.IO;
 global using System.Reflection;
 global using System.Diagnostics;
+global using System.Runtime.Versioning;
 global using System.Collections.Generic;
 global using System.Security.Permissions;
 global using System.Runtime.CompilerServices;
@@ -16,6 +17,7 @@ global using UnityEngine;
 global using Random = UnityEngine.Random;
 global using static PhysicalObject;
 global using Pearlcat;
+global using SlugpupStuff;
 global using DevConsole;
 global using DevConsole.Commands;
 global using DressMySlugcat;

@@ -1,12 +1,13 @@
 {
 	"id": "Antoneeee.PupBase",
 	"name": "PupBase",
-	"version": "1.1.0",
+	"version": "1.1.2",
 	"target_game_version": "v1.9.15b",
 	"authors": "Antoneeee",
 	"description": "A framework for adding new types of Slugpups",
 	"requirements": [ "moreslugcats" ],
 	"requirements_names": [ "More Slugcats Expansion" ],
 	"tags": [ "Game Mechanics", "Custom Slugcat" ],
-    "checksum_override_version": false
+    "checksum_override_version": false,
+	"priorities": [ "iwantbread.slugpupstuff" ]
 }
