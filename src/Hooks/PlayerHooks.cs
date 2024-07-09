@@ -37,7 +37,7 @@
                 statsCurs.EmitDelegate(delegate (Player player)
                 {
                     // If a Puptype has been detected prior to its generation, that means it's been assigned manually or was assigned by a save file. If so, ensure that this PupType remains as it is.
-                    if (Plugin.SlugpupStuff && player.PupType() != null && player.PupType().name != MoreSlugcatsEnums.SlugcatStatsName.Slugpup && PupManager.IsPupInUseBySlugpupStuff(player.playerState))
+                    if (Plugin.SlugpupStuff && player.PupType() != null && PupManager.IsPupInUseBySlugpupStuff(player.playerState))
                     {
                         PupManager.OverrideSlugpupStuffVariant(player.playerState, null);
                         Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting Variant to null.");

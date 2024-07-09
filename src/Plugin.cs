@@ -9,7 +9,7 @@ namespace PupBase
 
         public const string MOD_NAME = "PupBase";
 
-        public const string VERSION = "1.1.3";
+        public const string VERSION = "1.1.4";
 
         public const string AUTHORS = "Antoneeee";
 
@@ -97,7 +97,6 @@ namespace PupBase
             }
         }
 
-        //code from Pups+, modified by Antoneeee
         public static void DevConsoleCommand()
         {
             string[] tags = ["Voidsea", "Winter", "Ignorecycle", "TentacleImmune", "Lavasafe", "AlternateForm", "PreCycle", "Night"];
