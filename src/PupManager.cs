@@ -1,4 +1,5 @@
 ﻿using System.Drawing.Drawing2D;
+using System.Dynamic;
 using UnityEngine.Assertions.Must;
 
 namespace PupBase
@@ -9,7 +10,7 @@ namespace PupBase
 
         internal static List<PupType.SpawnModifiers> spawnModifiersList = new List<PupType.SpawnModifiers>();
 
-        public static List<int> PupIDBlacklist = [ 1000, 1001, 2220, 3118, 4118, 765];
+        public static List<int> PupIDBlacklist = [1000, 1001, 2220, 3118, 4118, 765];
 
         /// <summary>
         /// Register a new PupType. Will return the PupType given. It is recommended that you assign this while your mod is initializing.
@@ -47,7 +48,7 @@ namespace PupBase
             }
             return tempList;
         }
-        
+
         /// <summary>
         /// Grabs the current list of PupTypes registered to PupManager, and returns them in the form of a list of strings.
         /// </summary>
@@ -247,7 +248,7 @@ namespace PupBase
         {
             try
             {
-                if (Plugin.SlugpupStuff && state is PlayerNPCState npcState && npcState.GetPupState().Variant != null)
+                if (state is PlayerNPCState npcState && SlugpupCWTs.GetPupState(npcState).Variant != null)
                 {
                     return true;
                 }
@@ -264,13 +265,14 @@ namespace PupBase
         /// Forces a Pups+ variant to be what you've given. Not recommended.
         /// </summary>
         /// <param name="state"></param>
+        /// <param name="name"></param>
         public static void OverrideSlugpupStuffVariant(CreatureState state, SlugcatStats.Name? name)
         {
             try
             {
-                if (Plugin.SlugpupStuff && state is PlayerNPCState npcState && npcState.GetPupState() != null)
+                if (state is PlayerNPCState npcState && SlugpupCWTs.TryGetPupState(npcState, out var pupState))
                 {
-                    npcState.GetPupState().Variant = name;
+                    pupState.Variant = name;
                 }
             }
             catch (Exception ex)
