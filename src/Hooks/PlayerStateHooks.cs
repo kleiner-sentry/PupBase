@@ -50,12 +50,8 @@
 
             while (foodCurs.TryGotoNext(MoveType.After, x => x.MatchLdsfld<MoreSlugcatsEnums.SlugcatStatsName>(nameof(MoreSlugcatsEnums.SlugcatStatsName.Slugpup))))
             {
-                /* WHILE TRYGOTO AFTER ldsfld class SlugcatStats/Name MoreSlugcats.MoreSlugcatsEnums/SlugcatStatsName::Slugpup
-                 * 	IL_****: ldarg.0
-	             *  IL_****: ldsfld class SlugcatStats/Name MoreSlugcats.MoreSlugcatsEnums/SlugcatStatsName::Slugpup
-                 */
-                foodCurs.Emit(OpCodes.Ldarg_0); // self
-                foodCurs.EmitDelegate((SlugcatStats.Name slugpup, PlayerNPCState self) =>   // If pupNPCState.variant != null, return variant, else return slugpup
+                foodCurs.Emit(OpCodes.Ldarg_0);
+                foodCurs.EmitDelegate((SlugcatStats.Name slugpup, PlayerNPCState self) =>
                 {
                     return self.PupType() != null ? self.PupType().name : slugpup;
                 }); 

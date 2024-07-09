@@ -67,7 +67,7 @@ namespace PupBase
                 
                 if (ModManager.ActiveMods.Any(mod => mod.id == "dressmyslugcat"))
                 {
-                    SetupDMSSprites();
+                    DMSHook();
                 }
                 if (ModManager.ActiveMods.Any(mod => mod.id == "NoirCatto.BeastMasterPupExtras"))
                 {
@@ -79,8 +79,7 @@ namespace PupBase
                 }
                 if (ModManager.ActiveMods.Any(mod => mod.id == "slime-cubed.devconsole"))
                 {
-                    RegisterSpawnPupCommand();
-                     ModLogger.LogInfo("spawn_pup command registered");
+                    DevConsoleCommand();
                 }
 
                 PostIsInit = true;
@@ -92,47 +91,64 @@ namespace PupBase
             }
         }
 
-        public static void RegisterSpawnPupCommand()
+        //code from Pups+, modified by Antoneeee
+        public static void DevConsoleCommand()
         {
             string[] tags = ["Voidsea", "Winter", "Ignorecycle", "TentacleImmune", "Lavasafe", "AlternateForm", "PreCycle", "Night"];
             string[] types = [..PupManager.GetPupTypeListString().ToArray(), "Random"];
-            string[] arguments = null;
-            new CommandBuilder("spawn_pup")
-                .RunGame((game, args) =>
+            new CommandBuilder("spawn_slugNPC")
+                .RunGame((game, arguments) =>
                 {
                     try
                     {
-                        arguments = args;
-                        if (args.Length != 0)
+                        if (arguments.Length > 0)
                         {
                             EntityID? id = null;
                             PupType pupType = null;
-                            foreach (string arg in args)
+                            string[] tempTags = [];
+                            foreach (string argument in arguments)
                             {
-                                if (arg.Contains('.'))
+                                if (argument.Contains('.'))
                                 {
                                     try
                                     {
-                                        id = EntityID.FromString(arg);
+                                        id = EntityID.FromString(argument);
                                     }
                                     catch
                                     {
-                                        if (int.TryParse(arg, out int idNum))
+                                        if (int.TryParse(argument, out int idNum))
                                             id = new EntityID(0, idNum);
                                     }
                                 }
-
-                                else if (PupManager.TryGetPupTypeFromString(arg, out var type))
+                                else if (PupManager.TryGetPupTypeFromString(argument, out var type))
                                 {
                                     pupType = type;
                                 }
+
+                                foreach (string testTag in tags)
+                                {
+                                    if (argument.Equals(testTag, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        if (tempTags.Length > 0)
+                                        {
+                                            tempTags.Append("," + testTag);
+                                        }
+                                        else
+                                        {
+                                            tempTags.Append(testTag);
+                                        }
+                                    }
+                                }
                             }
 
-                            var abstractPup = new AbstractCreature(game.world, StaticWorld.GetCreatureTemplate(MoreSlugcatsEnums.CreatureTemplateType.SlugNPC), null, GameConsole.TargetPos.Room.realizedRoom.GetWorldCoordinate(GameConsole.TargetPos.Pos), id ?? game.GetNewID());
+                            AbstractCreature abstractPup = new AbstractCreature(game.world, StaticWorld.GetCreatureTemplate(MoreSlugcatsEnums.CreatureTemplateType.SlugNPC), null, GameConsole.TargetPos.Room.realizedRoom.GetWorldCoordinate(GameConsole.TargetPos.Pos), id ?? game.GetNewID());
                             (abstractPup.state as PlayerState).PupState().pupType = pupType ?? PupManager.GenerateType(abstractPup);
                             ModLogger.LogInfo(pupType != null ? "Assigned " + abstractPup.ID.ToString() + " Type " + (abstractPup.state as PlayerState).PupType().name : "Generated " + abstractPup.ID.ToString() + " Type " + (abstractPup.state as PlayerState).PupType().name);
-                            abstractPup.spawnData = "{" + string.Join(",", args.Select((string tag) => tags.FirstOrDefault((string testTag) => tag.Equals(testTag, StringComparison.OrdinalIgnoreCase)) ?? tag)) + "}";
-                            abstractPup.setCustomFlags();
+                            if (tempTags.Length > 0)
+                            {
+                                abstractPup.spawnData = "{" + tempTags.ToString() + "}";
+                                abstractPup.setCustomFlags();
+                            }
 
                             GameConsole.TargetPos.Room.AddEntity(abstractPup);
                             if (GameConsole.TargetPos.Room.realizedRoom != null)
@@ -142,7 +158,7 @@ namespace PupBase
                         }
                         else
                         {
-                            var abstractPup = new AbstractCreature(game.world, StaticWorld.GetCreatureTemplate(MoreSlugcatsEnums.CreatureTemplateType.SlugNPC), null, GameConsole.TargetPos.Room.realizedRoom.GetWorldCoordinate(GameConsole.TargetPos.Pos), game.GetNewID());
+                            AbstractCreature abstractPup = new AbstractCreature(game.world, StaticWorld.GetCreatureTemplate(MoreSlugcatsEnums.CreatureTemplateType.SlugNPC), null, GameConsole.TargetPos.Room.realizedRoom.GetWorldCoordinate(GameConsole.TargetPos.Pos), game.GetNewID());
                             (abstractPup.state as PlayerState).PupState().pupType = PupManager.GenerateType(abstractPup);
                             ModLogger.LogInfo("Generated " + abstractPup.ID.ToString() + " Type " + (abstractPup.state as PlayerState).PupType().name);
 
@@ -155,22 +171,22 @@ namespace PupBase
                     }
                     catch (Exception ex)
                     {
-                        GameConsole.WriteLine("Failed to spawn pup! See console log for more info.");
-                        ModLogger.LogWarning("pup failed:" + ex.ToString());
+                        GameConsole.WriteLine(ex.Message);
+                        ModLogger.LogWarning(ex.ToString());
                     }
                 })
-                .Help("spawn_pup [ID?] [type?] [args...]")
+                .Help("spawn_slugNPC [ID?] [type?] [args...]")
                 .AutoComplete(arguments =>
                 {
-                    if (arguments.Length == 0) return types;
-                    else if (arguments.Length == 1 && arguments[0].Contains('.')) return types;
-                    else if (arguments.Length == 1 && !arguments[0].Contains('.') || arguments.Length == 2) return tags;
+                    if (arguments.Length == 0) return ["ID.1."];
+                    else if (arguments.Length == 1) return types;
+                    else if (arguments.Length > 1) return tags;
                     else return null;
                 })
                 .Register();
         }
 
-        private void SetupDMSSprites()
+        private void DMSHook()
         {
             new Hook(typeof(DressMySlugcat.Utils).GetProperty("ValidSlugcatNames", BindingFlags.Static | BindingFlags.Public).GetGetMethod(), new Func<Func<List<string>>, List<string>>(DMSValidPupNames));
         }
