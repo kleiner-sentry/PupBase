@@ -196,22 +196,36 @@ namespace PupBase
         /// Generates a new PupType. Outputs the assigned PupType. If no pup is generated, it'll output a regular Slugpup instead.
         /// </summary>
         /// <param name="abstractCreature">Used to gather all necessary data.</param>
-        /// <returns>Outputs the assigned PupType.</returns>
-        public static PupType GenerateType(AbstractCreature abstractCreature)
+        /// <param name="maturity">1 = only children spawn, 2 = only adults spawn</param>
+        /// <returns>Outputs the newly generated PupType.</returns>
+        public static PupType GenerateType(AbstractCreature abstractCreature, int maturity = 0, bool debug = false)
         {
-            if ((Plugin.Pearlcat && IsPearlpup(abstractCreature)) || PupIDBlacklist.Contains(abstractCreature.ID.RandomSeed))
-            {
-                Plugin.ModLogger.LogInfo("This particular pup is excluded from generating a PupType. Defaulting to Slugpup.");
-                return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
-            }
-
             // Calculate total weight.
             float totalWeight = 0;
-            List<float> listedWeights = new List<float>();
-            foreach (PupType type in pupTypeList)
+            List<object[]> listedWeights = new List<object[]>();
+            foreach (PupType pupType in pupTypeList)
             {
-                listedWeights.Add(type.CalculateWeight(abstractCreature.world, ModOptions.enableDebug.Value));
-                totalWeight += listedWeights.Last();
+                if (maturity == 1)
+                {
+                    if (!pupType.mature)
+                    {
+                        listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, debug)]);
+                        totalWeight += (float)listedWeights.Last()[1];
+                    }
+                }
+                else if (maturity == 2)
+                {
+                    if (pupType.mature)
+                    {
+                        listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, debug)]);
+                        totalWeight += (float)listedWeights.Last()[1];
+                    }
+                }
+                else
+                {
+                    listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, debug)]);
+                    totalWeight += (float)listedWeights.Last()[1];
+                }
             }
 
             // Generate random number based on ID
@@ -224,18 +238,73 @@ namespace PupBase
 
             // Assign PupType based on weighted probability
             float sum = 0;
-            int i = 0;
-            foreach (PupType type in pupTypeList)
+            foreach (object[] obj in listedWeights)
             {
-                sum += listedWeights.ElementAt(i);
+                sum += (float)obj[1];
 
                 if (sum >= probability)
                 {
-                    return type;
+                    if (debug) Plugin.ModLogger.LogInfo("Generated " + abstractCreature.ID.ToString() + " Type " + ((PupType)obj[0]).name);
+                    return (PupType)obj[0];
                 }
-                i++;
             }
-            Plugin.ModLogger.LogInfo("Failed to generate a PupType. Defaulting to Slugpup.");
+            if (debug) Plugin.ModLogger.LogInfo("Failed to generate a PupType. Defaulting to Slugpup.");
+            return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
+        }
+
+        /// <summary>
+        /// Generates a new PupType. Outputs the assigned PupType. If no pup is generated, it'll output a regular Slugpup instead. Will not generate a type based on its ID.
+        /// </summary>
+        /// <param name="world">Used to gather all necessary data.</param>
+        /// <param name="maturity">1 = only children spawn, 2 = only adults spawn</param>
+        /// <param name="debug">Outputs the results to the log.</param>
+        /// <returns>Outputs the newly generated PupType.</returns>
+        public static PupType GenerateType(World world, int maturity = 0, bool debug = false)
+        {
+            // Calculate total weight.
+            float totalWeight = 0;
+            List<object[]> listedWeights = new List<object[]>();
+            foreach (PupType pupType in pupTypeList)
+            {
+                if (maturity == 1)
+                {
+                    if (!pupType.mature)
+                    {
+                        listedWeights.Add([pupType, pupType.CalculateWeight(world, debug)]);
+                        totalWeight += (float)listedWeights.Last()[1];
+                    }
+                }
+                else if (maturity == 2)
+                {
+                    if (pupType.mature)
+                    {
+                        listedWeights.Add([pupType, pupType.CalculateWeight(world, debug)]);
+                        totalWeight += (float)listedWeights.Last()[1];
+                    }
+                }
+                else
+                {
+                    listedWeights.Add([pupType, pupType.CalculateWeight(world, debug)]);
+                    totalWeight += (float)listedWeights.Last()[1];
+                }
+            }
+
+            // Generate random number
+            float probability = Random.value * totalWeight;
+
+            // Assign PupType based on weighted probability
+            float sum = 0;
+            foreach (object[] obj in listedWeights)
+            {
+                sum += (float)obj[1];
+
+                if (sum >= probability)
+                {
+                    if (debug) Plugin.ModLogger.LogInfo("Generated Type " + ((PupType)obj[0]).name);
+                    return (PupType)obj[0];
+                }
+            }
+            if (debug) Plugin.ModLogger.LogInfo("Failed to generate a PupType. Defaulting to Slugpup.");
             return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
         }
 
@@ -266,7 +335,7 @@ namespace PupBase
         /// </summary>
         /// <param name="state"></param>
         /// <param name="name"></param>
-        public static void OverrideSlugpupStuffVariant(CreatureState state, SlugcatStats.Name? name)
+        public static void OverrideSlugpupStuffVariant(CreatureState state, SlugcatStats.Name name)
         {
             try
             {
@@ -281,6 +350,6 @@ namespace PupBase
             }
         }
 
-        private static bool IsPearlpup(AbstractCreature abstractCreature) => Pearlcat.Hooks.IsPearlpup(abstractCreature);
+        internal static bool IsPearlpup(AbstractCreature abstractCreature) => Pearlcat.Hooks.IsPearlpup(abstractCreature);
     }
 }

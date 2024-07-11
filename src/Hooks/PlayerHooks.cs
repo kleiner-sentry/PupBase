@@ -43,10 +43,10 @@
                         Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting Variant to null.");
                     }
                     // If the above isn't true, then generate a PupType.
-                    else if (player.isSlugpup && player.isNPC && player.PupType() == null && !(Plugin.SlugpupStuff && PupManager.IsPupInUseBySlugpupStuff(player.playerState)))
+                    else if (player.isSlugpup && player.isNPC && player.PupType() == null && ((Plugin.Pearlcat && PupManager.IsPearlpup(player.abstractCreature)) || PupManager.PupIDBlacklist.Contains(player.abstractCreature.ID.RandomSeed)) && !(Plugin.SlugpupStuff && PupManager.IsPupInUseBySlugpupStuff(player.playerState)))
                     {
-                        player.PupState().pupType = PupManager.GenerateType(player.abstractCreature);
-                        Plugin.ModLogger.LogInfo("Generated " + player.abstractCreature.ID.ToString() + " Type " + player.PupType().name);
+                        player.PupState().pupType = PupManager.GenerateType(player.abstractCreature, debug: ModOptions.enableDebug.Value);
+                        if (player.PupType().mature) player.playerState.forceFullGrown = true;
                     }
                     // If a Pup Variant is detected in this process, then override the PupType to be null.
                     else if (Plugin.SlugpupStuff && player.PupType() != null && PupManager.IsPupInUseBySlugpupStuff(player.playerState))

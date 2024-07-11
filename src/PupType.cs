@@ -43,6 +43,7 @@ namespace PupBase
 
         public int foodToHibernate;
         public int maxFood;
+        public bool mature;
 
         public bool allowSpawningInArena;
         public bool hideInMenu;
@@ -62,11 +63,12 @@ namespace PupBase
         /// <param name="spawnWeight">The weighted probability of this Slugpup spawning. Default is 100.</param>
         /// <param name="foodToHibernate">(OPTIONAL) The amount of food needed to hibernate.</param>
         /// <param name="maxFood">(OPTIONAL) The maximum food this pup can hold.</param>
+        /// <param name="mature">(OPTIONAL) Will this pup be an adult or </param>
         /// <param name="hideInMenu">(OPTIONAL) Hide this pup in the story menu.</param>
         /// <param name="allowSpawningInArena">(OPTIONAL) Intended for those who use a custom campaign, and wish to prevent users from allowing this pup from spawning in Arena.</param>
         /// <param name="disableCustomSpawnWeight">(OPTIONAL) Intended for those who use a custom campaign, and wish to prevent users from modifying its spawn weight.</param>
         /// <param name="spawnModifiersList">(OPTIONAL) Allows you to choose which region/campaign this type will be chosen more or less freqently in.</param>
-        public PupType(string modName, SlugcatStats.Name name, int spawnWeight = 100, int foodToHibernate = 2, int maxFood = 3, bool hideInMenu = true, bool allowSpawningInArena = true, bool disableCustomSpawnWeight = false, List<SpawnModifiers> spawnModifiersList = null)
+        public PupType(string modName, SlugcatStats.Name name, int spawnWeight = 100, int foodToHibernate = 2, int maxFood = 3, bool mature = false, bool hideInMenu = true, bool allowSpawningInArena = true, bool disableCustomSpawnWeight = false, List<SpawnModifiers> spawnModifiersList = null)
         {
             this.modName = string.IsNullOrEmpty(modName) ? this.modName = "???" : modName;
             if (name != null)
@@ -78,6 +80,14 @@ namespace PupBase
                 Plugin.ModLogger.LogWarning(this.modName + ", Please assign a name!!");
                 this.name = new SlugcatStats.Name("Testpup");
             }
+
+            this.foodToHibernate = foodToHibernate;
+            this.maxFood = maxFood;
+            this.mature = mature;
+
+            this.allowSpawningInArena = allowSpawningInArena;
+            this.hideInMenu = hideInMenu;
+
             defaultSpawnWeight = spawnWeight;
 
             if (spawnModifiersList != null)
@@ -88,11 +98,6 @@ namespace PupBase
                     modifiers.pupType = this;
                 }
             }
-
-            this.foodToHibernate = foodToHibernate;
-            this.maxFood = maxFood;
-            this.allowSpawningInArena = allowSpawningInArena;
-            this.hideInMenu = hideInMenu;
 
             config = disableCustomSpawnWeight ? null : ModOptions.Instance.config.Bind("SpawnWeight" + this.name, defaultSpawnWeight, new ConfigurableInfo("Set how common this type of pup will be.", new ConfigAcceptableRange<int>(0, 1000)));
         }

@@ -9,7 +9,7 @@ namespace PupBase
 
         public const string MOD_NAME = "PupBase";
 
-        public const string VERSION = "1.1.4";
+        public const string VERSION = "1.1.5";
 
         public const string AUTHORS = "Antoneeee";
 
@@ -187,7 +187,7 @@ namespace PupBase
                     bool type = false;
                     foreach (string argument in arguments)
                     {
-                        if (PupManager.TryGetPupTypeFromString(argument))
+                        if (types.Contains(argument))
                         {
                             type = true;
                         }
