@@ -9,7 +9,7 @@ namespace PupBase
 
         public const string MOD_NAME = "PupBase";
 
-        public const string VERSION = "1.1.5";
+        public const string VERSION = "1.1.6";
 
         public const string AUTHORS = "Antoneeee";
 
@@ -100,7 +100,7 @@ namespace PupBase
         public static void DevConsoleCommand()
         {
             string[] tags = ["Voidsea", "Winter", "Ignorecycle", "TentacleImmune", "Lavasafe", "AlternateForm", "PreCycle", "Night"];
-            string[] types = [..PupManager.GetPupTypeListString().ToArray(), "Random"];
+            string[] types = [..PupManager.GetPupTypeListString().ToArray(), "Random", "Mature", "Child"];
             new CommandBuilder("spawn_slugNPC")
                 .RunGame((game, arguments) =>
                 {
@@ -109,7 +109,8 @@ namespace PupBase
                         if (arguments.Length > 0)
                         {
                             EntityID? id = null;
-                            PupType pupType = null;
+                            string pupType = null;
+                            bool? prioritize = null;
                             string[] tempTags = [];
                             foreach (string argument in arguments)
                             {
@@ -125,22 +126,33 @@ namespace PupBase
                                             id = new EntityID(0, idNum);
                                     }
                                 }
-                                else if (PupManager.TryGetPupTypeFromString(argument, out var type))
+                                else
                                 {
-                                    pupType = type;
-                                }
-
-                                foreach (string testTag in tags)
-                                {
-                                    if (argument.Equals(testTag, StringComparison.OrdinalIgnoreCase))
+                                    if (argument.Equals("true", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (tempTags.Length > 0)
+                                        prioritize = true;
+                                    }
+                                    else if (argument.Equals("false", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        prioritize = false;
+                                    }
+                                    else if (types.Contains(argument))
+                                    {
+                                        pupType = argument;
+                                    }
+
+                                    foreach (string testTag in tags)
+                                    {
+                                        if (argument.Equals(testTag, StringComparison.OrdinalIgnoreCase))
                                         {
-                                            tempTags.Append("," + testTag);
-                                        }
-                                        else
-                                        {
-                                            tempTags.Append(testTag);
+                                            if (tempTags.Length > 0)
+                                            {
+                                                tempTags.Append("," + testTag);
+                                            }
+                                            else
+                                            {
+                                                tempTags.Append(testTag);
+                                            }
                                         }
                                     }
                                 }
@@ -149,8 +161,25 @@ namespace PupBase
                             AbstractCreature abstractPup = new AbstractCreature(game.world, StaticWorld.GetCreatureTemplate(MoreSlugcatsEnums.CreatureTemplateType.SlugNPC), null, GameConsole.TargetPos.Room.realizedRoom.GetWorldCoordinate(GameConsole.TargetPos.Pos), id ?? game.GetNewID());
                             if (pupType != null && abstractPup.state is PlayerState npcState)
                             {
-                                npcState.PupState().pupType = pupType;
-                                ModLogger.LogInfo("Assigned " + abstractPup.ID.ToString() + " Type " + npcState.PupType().name);
+                                switch (pupType)
+                                {
+                                    case "Mature":
+                                        npcState.PupState().pupType = PupManager.GenerateType(abstractPup, maturity: 2, info: true);
+                                        npcState.PupType().pioritize = prioritize == true ? true : false;
+                                        break;
+                                    case "Child":
+                                        npcState.PupState().pupType = PupManager.GenerateType(abstractPup, maturity: 1, info: true);
+                                        npcState.PupType().pioritize = prioritize == true ? true : false;
+                                        break;
+                                    default:
+                                        if (PupManager.TryGetPupTypeFromString(pupType, out PupType type))
+                                        {
+                                            npcState.PupState().pupType = type;
+                                            ModLogger.LogInfo("Assigned " + abstractPup.ID.ToString() + " Type " + npcState.PupType().name);
+                                            npcState.PupType().pioritize = prioritize == false ? false : true;
+                                        }
+                                        break;
+                                }
                             }
                             if (tempTags.Length > 0)
                             {
@@ -181,7 +210,7 @@ namespace PupBase
                         ModLogger.LogWarning(ex.ToString());
                     }
                 })
-                .Help("spawn_slugNPC [type?] [ID?] [args...]")
+                .Help("spawn_slugNPC [type?] [prioritize: true] [ID?] [args...]")
                 .AutoComplete(arguments =>
                 {
                     bool type = false;

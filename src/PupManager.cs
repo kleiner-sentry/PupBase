@@ -197,8 +197,9 @@ namespace PupBase
         /// </summary>
         /// <param name="abstractCreature">Used to gather all necessary data.</param>
         /// <param name="maturity">1 = only children spawn, 2 = only adults spawn</param>
+        /// <param name="info">Outputs info in the log</param>
         /// <returns>Outputs the newly generated PupType.</returns>
-        public static PupType GenerateType(AbstractCreature abstractCreature, int maturity = 0, bool debug = false)
+        public static PupType GenerateType(AbstractCreature abstractCreature, int maturity = 0, bool info = true)
         {
             // Calculate total weight.
             float totalWeight = 0;
@@ -209,7 +210,7 @@ namespace PupBase
                 {
                     if (!pupType.mature)
                     {
-                        listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, debug)]);
+                        listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, ModOptions.enableDebug.Value)]);
                         totalWeight += (float)listedWeights.Last()[1];
                     }
                 }
@@ -217,13 +218,13 @@ namespace PupBase
                 {
                     if (pupType.mature)
                     {
-                        listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, debug)]);
+                        listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, ModOptions.enableDebug.Value)]);
                         totalWeight += (float)listedWeights.Last()[1];
                     }
                 }
                 else
                 {
-                    listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, debug)]);
+                    listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, ModOptions.enableDebug.Value)]);
                     totalWeight += (float)listedWeights.Last()[1];
                 }
             }
@@ -244,11 +245,11 @@ namespace PupBase
 
                 if (sum >= probability)
                 {
-                    if (debug) Plugin.ModLogger.LogInfo("Generated " + abstractCreature.ID.ToString() + " Type " + ((PupType)obj[0]).name);
+                    if (info) Plugin.ModLogger.LogInfo("Generated " + abstractCreature.ID.ToString() + " Type " + ((PupType)obj[0]).name);
                     return (PupType)obj[0];
                 }
             }
-            if (debug) Plugin.ModLogger.LogInfo("Failed to generate a PupType. Defaulting to Slugpup.");
+            if (info) Plugin.ModLogger.LogInfo("Failed to generate a PupType. Defaulting to Slugpup.");
             return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
         }
 

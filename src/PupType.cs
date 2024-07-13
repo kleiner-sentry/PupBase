@@ -47,6 +47,7 @@ namespace PupBase
 
         public bool allowSpawningInArena;
         public bool hideInMenu;
+        public bool pioritize = false; // let this instance spawn over pups+ variants
 
         public int defaultSpawnWeight;
         public Configurable<int> config;

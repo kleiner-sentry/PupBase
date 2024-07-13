@@ -30,6 +30,7 @@
                         if (PupManager.TryGetPupTypeFromString(array[1], out var type))
                         {
                             self.PupState().pupType = type;
+                            self.PupType().pioritize = true;
                             Plugin.ModLogger.LogInfo("Assigned from save " + self.player.ID.ToString() + " Type " + type.name);
                         }
                         break;

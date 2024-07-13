@@ -36,24 +36,27 @@
                 statsCurs.Emit(OpCodes.Ldarg_1);
                 statsCurs.EmitDelegate(delegate (Player player)
                 {
-                    // If a Puptype has been detected prior to its generation, that means it's been assigned manually or was assigned by a save file. If so, ensure that this PupType remains as it is.
-                    if (Plugin.SlugpupStuff && player.PupType() != null && PupManager.IsPupInUseBySlugpupStuff(player.playerState))
+                    if (Plugin.SlugpupStuff && PupManager.IsPupInUseBySlugpupStuff(player.playerState))
                     {
-                        PupManager.OverrideSlugpupStuffVariant(player.playerState, null);
-                        Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting Variant to null.");
+                        if (player.PupType() != null)
+                        {
+                            if (player.PupType().pioritize)
+                            {
+                                PupManager.OverrideSlugpupStuffVariant(player.playerState, null);
+                                Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting Variant to null.");
+                            }
+                            else
+                            {
+                                player.PupState().pupType = null;
+                                Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting PupType to null.");
+                            }
+                        }
                     }
-                    // If the above isn't true, then generate a PupType.
-                    else if (player.isSlugpup && player.isNPC && player.PupType() == null && ((Plugin.Pearlcat && PupManager.IsPearlpup(player.abstractCreature)) || PupManager.PupIDBlacklist.Contains(player.abstractCreature.ID.RandomSeed)) && !(Plugin.SlugpupStuff && PupManager.IsPupInUseBySlugpupStuff(player.playerState)))
+                    else if (player.isSlugpup && player.isNPC && player.PupType() == null && !((Plugin.Pearlcat && PupManager.IsPearlpup(player.abstractCreature)) || PupManager.PupIDBlacklist.Contains(player.abstractCreature.ID.RandomSeed)))
                     {
-                        player.PupState().pupType = PupManager.GenerateType(player.abstractCreature, debug: ModOptions.enableDebug.Value);
-                        if (player.PupType().mature) player.playerState.forceFullGrown = true;
+                        player.PupState().pupType = PupManager.GenerateType(player.abstractCreature, info: true);
                     }
-                    // If a Pup Variant is detected in this process, then override the PupType to be null.
-                    else if (Plugin.SlugpupStuff && player.PupType() != null && PupManager.IsPupInUseBySlugpupStuff(player.playerState))
-                    {
-                        player.PupState().pupType = null;
-                        Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting PupType to null.");
-                    }
+                    if (player.PupType() != null && player.PupType().mature) player.playerState.forceFullGrown = true;
                 });
             
                 statsCurs.GotoNext(MoveType.After, (Instruction x) => x.MatchLdsfld<MoreSlugcatsEnums.SlugcatStatsName>("Slugpup"));
@@ -64,7 +67,6 @@
             {
                 Plugin.ModLogger.LogError(e);
             }
-            
         }
     }
 }
