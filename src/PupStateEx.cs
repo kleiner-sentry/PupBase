@@ -8,7 +8,7 @@
         public PupType pupType;
     }
 
-    public static class PlayerStateExtention
+    public static class PlayerStateExtension
     {
         private static readonly ConditionalWeakTable<PlayerState, PupStateEx> cwtState = new();
 

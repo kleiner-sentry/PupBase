@@ -210,7 +210,7 @@ namespace PupBase
                 {
                     if (!pupType.mature)
                     {
-                        listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, ModOptions.enableDebug.Value)]);
+                        listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, info && ModOptions.enableDebug.Value)]);
                         totalWeight += (float)listedWeights.Last()[1];
                     }
                 }
@@ -218,13 +218,13 @@ namespace PupBase
                 {
                     if (pupType.mature)
                     {
-                        listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, ModOptions.enableDebug.Value)]);
+                        listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, info && ModOptions.enableDebug.Value)]);
                         totalWeight += (float)listedWeights.Last()[1];
                     }
                 }
                 else
                 {
-                    listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, ModOptions.enableDebug.Value)]);
+                    listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, info && ModOptions.enableDebug.Value)]);
                     totalWeight += (float)listedWeights.Last()[1];
                 }
             }
@@ -260,7 +260,7 @@ namespace PupBase
         /// <param name="maturity">1 = only children spawn, 2 = only adults spawn</param>
         /// <param name="debug">Outputs the results to the log.</param>
         /// <returns>Outputs the newly generated PupType.</returns>
-        public static PupType GenerateType(World world, int maturity = 0, bool debug = false)
+        public static PupType GenerateType(World world, int maturity = 0, bool info = false)
         {
             // Calculate total weight.
             float totalWeight = 0;
@@ -271,7 +271,7 @@ namespace PupBase
                 {
                     if (!pupType.mature)
                     {
-                        listedWeights.Add([pupType, pupType.CalculateWeight(world, debug)]);
+                        listedWeights.Add([pupType, pupType.CalculateWeight(world, info && ModOptions.enableDebug.Value)]);
                         totalWeight += (float)listedWeights.Last()[1];
                     }
                 }
@@ -279,13 +279,13 @@ namespace PupBase
                 {
                     if (pupType.mature)
                     {
-                        listedWeights.Add([pupType, pupType.CalculateWeight(world, debug)]);
+                        listedWeights.Add([pupType, pupType.CalculateWeight(world, info && ModOptions.enableDebug.Value)]);
                         totalWeight += (float)listedWeights.Last()[1];
                     }
                 }
                 else
                 {
-                    listedWeights.Add([pupType, pupType.CalculateWeight(world, debug)]);
+                    listedWeights.Add([pupType, pupType.CalculateWeight(world, info && ModOptions.enableDebug.Value)]);
                     totalWeight += (float)listedWeights.Last()[1];
                 }
             }
@@ -301,11 +301,11 @@ namespace PupBase
 
                 if (sum >= probability)
                 {
-                    if (debug) Plugin.ModLogger.LogInfo("Generated Type " + ((PupType)obj[0]).name);
+                    if (info) Plugin.ModLogger.LogInfo("Generated Type " + ((PupType)obj[0]).name);
                     return (PupType)obj[0];
                 }
             }
-            if (debug) Plugin.ModLogger.LogInfo("Failed to generate a PupType. Defaulting to Slugpup.");
+            if (info) Plugin.ModLogger.LogInfo("Failed to generate a PupType. Defaulting to Slugpup.");
             return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
         }
 
