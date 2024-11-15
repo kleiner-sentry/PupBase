@@ -56,19 +56,19 @@
                 PupUIList.Add(new OpLabel(50, 625 - vpos - interval, "Name:"));
                 PupUIList.Add(new OpLabel(175, 625 - vpos - interval, type.name.value));
                 PupUIList.Add(new OpLabel(50, 625 - vpos - interval * 2, "Spawn Weight:"));
-                if (type.config != null)
+                if (type.spawnWeightConfig != null)
                 {
-                    PupUIList.Add(new OpUpdown(type.config, new Vector2(175, 620 - vpos - interval * 2), 75));
-                    PupUIList.Add(new OpLabel(255, 625 - vpos - interval * 2, "Default: " + type.defaultSpawnWeight.ToString() + (!type.allowSpawningInArena ? " - Won't spawn in Arena." : "")));
+                    PupUIList.Add(new OpUpdown(type.spawnWeightConfig, new Vector2(175, 620 - vpos - interval * 2), 75));
+                    PupUIList.Add(new OpLabel(255, 625 - vpos - interval * 2, "Default: " + type.defaultSpawnWeight.ToString()));
                 }
                 else
                 {
-                    PupUIList.Add(new OpLabel(175, 625 - vpos - interval * 2, type.spawnWeight.ToString() + (!type.allowSpawningInArena ? " - Won't spawn in Arena." : "")));
+                    PupUIList.Add(new OpLabel(175, 625 - vpos - interval * 2, type.spawnWeight.ToString()));
                 }
                 PupUIList.Add(new OpLabel(50, 625 - vpos - interval * 3, "Food:"));
                 PupUIList.Add(new OpLabel(175, 625 - vpos - interval * 3, type.foodToHibernate + " - " + type.maxFood));
                 PupUIList.Add(new OpLabel(50, 625 - vpos - interval * 4, "Spawn Modifiers:"));
-                PupUIList.Add(new OpLabel(175, 625 - vpos - interval * 4, (type.SpawnModifiersToString() != null ? type.SpawnModifiersToString() : "N/A")));
+                PupUIList.Add(new OpLabel(175, 625 - vpos - interval * 4, (type.regionModifiers == null && type.campaignModifiers == null ) ? "N/A" : type.ModifiersToString()));
 
                 i++;
             }

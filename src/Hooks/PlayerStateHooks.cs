@@ -30,7 +30,7 @@
                         if (PupManager.TryGetPupTypeFromString(array[1], out var type))
                         {
                             self.PupState().pupType = type;
-                            self.PupType().pioritize = true;
+                            self.PupState().pioritize = true;
                             Plugin.ModLogger.LogInfo("Assigned from save " + self.player.ID.ToString() + " Type " + type.name);
                         }
                         break;
@@ -54,7 +54,16 @@
                 foodCurs.Emit(OpCodes.Ldarg_0);
                 foodCurs.EmitDelegate((SlugcatStats.Name slugpup, PlayerNPCState self) =>
                 {
-                    return self.PupType() != null ? self.PupType().name : slugpup;
+                    if (self.PupState().pupType != null)
+                    {
+                        if (self.PupState().pupType.adultType != null && self.forceFullGrown)
+                        {
+                            return self.PupState().pupType.adultType.adultName;
+                        }
+                        return self.PupState().pupType.name;
+                    }
+                    return slugpup;
+                    ;
                 }); 
             }
         }

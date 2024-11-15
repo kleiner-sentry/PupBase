@@ -6,6 +6,7 @@
     public class PupStateEx
     {
         public PupType pupType;
+        public bool pioritize = false; // let this instance spawn over pups+ variants
     }
 
     public static class PlayerStateExtension

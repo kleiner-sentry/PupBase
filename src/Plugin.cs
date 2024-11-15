@@ -9,7 +9,7 @@ namespace PupBase
 
         public const string MOD_NAME = "PupBase";
 
-        public const string VERSION = "1.1.7";
+        public const string VERSION = "1.2.0";
 
         public const string AUTHORS = "Antoneeee";
 
@@ -45,6 +45,8 @@ namespace PupBase
             try
             {
                 if (IsInit) return;
+
+                SlugpupNames.RegisterValues();
 
                 ModOptions.RegisterOI();
                 Hooks.PlayerHooks.Init();
@@ -164,19 +166,21 @@ namespace PupBase
                                 switch (pupType)
                                 {
                                     case "Mature":
-                                        npcState.PupState().pupType = PupManager.GenerateType(abstractPup, maturity: 2, info: true);
-                                        npcState.PupType().pioritize = prioritize == true ? true : false;
+                                        npcState.PupState().pupType = PupManager.GenerateType(abstractPup, true, info: true);
+                                        npcState.forceFullGrown = true;
+                                        npcState.PupState().pioritize = prioritize == true ? true : false;
                                         break;
                                     case "Child":
-                                        npcState.PupState().pupType = PupManager.GenerateType(abstractPup, maturity: 1, info: true);
-                                        npcState.PupType().pioritize = prioritize == true ? true : false;
+                                        npcState.PupState().pupType = PupManager.GenerateType(abstractPup, false, info: true);
+                                        npcState.forceFullGrown = false;
+                                        npcState.PupState().pioritize = prioritize == true ? true : false;
                                         break;
                                     default:
                                         if (PupManager.TryGetPupTypeFromString(pupType, out PupType type))
                                         {
                                             npcState.PupState().pupType = type;
                                             ModLogger.LogInfo("Assigned " + abstractPup.ID.ToString() + " Type " + npcState.PupType().name);
-                                            npcState.PupType().pioritize = prioritize == false ? false : true;
+                                            npcState.PupState().pioritize = prioritize == false ? false : true;
                                         }
                                         break;
                                 }
@@ -235,7 +239,7 @@ namespace PupBase
         private List<string> DMSValidPupNames(Func<List<string>> orig)
         {
             List<string> list = orig();
-            List<string> tempList = PupManager.GetPupTypeListString();
+            List<string> tempList = PupManager.GetPupTypeListString(true);
 
             foreach (string str in list)
             {

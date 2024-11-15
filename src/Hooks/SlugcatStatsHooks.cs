@@ -11,9 +11,13 @@
 
         public static IntVector2 SlugcatStats_SlugcatFoodMeter(On.SlugcatStats.orig_SlugcatFoodMeter orig, SlugcatStats.Name slugcat)
         {
-            if (PupManager.TryGetPupType(slugcat, out var type))
+            if (PupManager.TryGetAdultType(slugcat, out var adultType))
             {
-                return new IntVector2(type.maxFood, type.foodToHibernate);
+                return new IntVector2(adultType.adultMaxFood, adultType.adultFoodToHibernate);
+            }
+            else if (PupManager.TryGetPupType(slugcat, out var pupType))
+            {
+                return new IntVector2(pupType.maxFood, pupType.foodToHibernate);
             }
             return orig(slugcat);
         }
