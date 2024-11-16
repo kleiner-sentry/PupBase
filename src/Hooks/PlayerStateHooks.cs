@@ -1,4 +1,6 @@
-﻿namespace PupBase.Hooks
+﻿using System.Globalization;
+
+namespace PupBase.Hooks
 {
     public class PlayerStateHooks
     {
@@ -6,6 +8,7 @@
         {
             On.MoreSlugcats.PlayerNPCState.ToString += PlayerNPCState_ToString;
             On.MoreSlugcats.PlayerNPCState.LoadFromString += PlayerNPCState_LoadFromString;
+            On.MoreSlugcats.PlayerNPCState.CycleTick += PlayerNPCState_CycleTick;
 
             IL.MoreSlugcats.PlayerNPCState.CycleTick += IL_PlayerNPCState_CycleTick;
 
@@ -15,6 +18,7 @@
         {
             string text = orig(self);
             text += "Type<cC>" + (self.PupType() != null ? self.PupType().name.value : "NULL") + "<cB>";
+            text += "Age<cC>" + self.PupState().age + "<cB>";
             return text;
         }
 
@@ -34,6 +38,9 @@
                             Plugin.ModLogger.LogInfo("Assigned from save " + self.player.ID.ToString() + " Type " + type.name);
                         }
                         break;
+                    case "Age":
+                        self.PupState().age = int.Parse(array[1], NumberStyles.Any, CultureInfo.InvariantCulture);
+                        break;
                     case "SlugcatCharacter":
                         if (Plugin.BeastMasterPupExtras && !array[1].Equals("Slugpup"))
                         {
@@ -43,6 +50,26 @@
                 }
             }
             self.unrecognizedSaveStrings.Remove("Type");
+            self.unrecognizedSaveStrings.Remove("Age");
+        }
+
+        public static void PlayerNPCState_CycleTick(On.MoreSlugcats.PlayerNPCState.orig_CycleTick orig, PlayerNPCState self)
+        {
+            if (self.player.world.game.IsStorySession && ModOptions.enableAging.Value && self.PupType() != null && self.PupType().hasAdultModule && !self.PupType().adultModule.disableAging)
+            {
+                if (!self.Malnourished && self.foodInStomach >= self.PupType().maxFood)
+                {
+                    self.PupState().age++;
+                }
+                if (self.PupState().age >= ModOptions.cyclesTillGrown.Value && !self.forceFullGrown)
+                {
+                    self.forceFullGrown = true;
+                    self.foodInStomach = self.PupType().adultModule.foodToHibernate;
+                }
+            }
+            //Plugin.ModLogger.LogInfo(self.PupState().age);
+
+            orig(self);
         }
 
         public static void IL_PlayerNPCState_CycleTick(ILContext il)
@@ -54,13 +81,13 @@
                 foodCurs.Emit(OpCodes.Ldarg_0);
                 foodCurs.EmitDelegate((SlugcatStats.Name slugpup, PlayerNPCState self) =>
                 {
-                    if (self.PupState().pupType != null)
+                    if (self.PupType() != null)
                     {
-                        if (self.PupState().pupType.adultType != null && self.forceFullGrown)
+                        if (self.PupType().hasAdultModule && self.forceFullGrown)
                         {
-                            return self.PupState().pupType.adultType.adultName;
+                            return self.PupType().adultModule.name;
                         }
-                        return self.PupState().pupType.name;
+                        return self.PupType().name;
                     }
                     return slugpup;
                     ;

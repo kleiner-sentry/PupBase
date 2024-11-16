@@ -22,11 +22,11 @@
                 {
                     if (player.PupState().pupType != null)
                     {
-                        if (player.PupState().pupType.adultType != null && player.playerState.forceFullGrown)
+                        if (player.PupType().hasAdultModule && player.playerState.forceFullGrown)
                         {
-                            return player.PupState().pupType.adultType.adultName;
+                            return player.PupType().adultModule.name;
                         }
-                        return player.PupState().pupType.name;
+                        return player.PupType().name;
                     }
                     return name;
 
@@ -48,28 +48,25 @@
                 statsCurs.Emit(OpCodes.Ldarg_1);
                 statsCurs.EmitDelegate(delegate (Player player)
                 {
-                    if (Plugin.SlugpupStuff && PupManager.IsPupInUseBySlugpupStuff(player.playerState))
+                    if (Plugin.SlugpupStuff && PupManager.IsPupInUseBySlugpupStuff(player.playerState) && player.PupState() != null)
                     {
-                        if (player.PupState() != null)
+                        if (player.PupState().pioritize)
                         {
-                            if (player.PupState().pioritize)
-                            {
-                                PupManager.OverrideSlugpupStuffVariant(player.playerState, null);
-                                Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting Variant to null.");
-                            }
-                            else
-                            {
-                                player.PupState().pupType = null;
-                                Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting PupType to null.");
-                            }
+                            PupManager.OverrideSlugpupStuffVariant(player.playerState, null);
+                            Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting Variant to null.");
+                        }
+                        else
+                        {
+                            player.PupState().pupType = null;
+                            Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting PupType to null.");
                         }
                     }
                     else if (player.isSlugpup && player.isNPC && player.PupType() == null && !((Plugin.Pearlcat && PupManager.IsPearlpup(player.abstractCreature)) || PupManager.PupIDBlacklist.Contains(player.abstractCreature.ID.RandomSeed)))
                     {
                         player.PupState().pupType = PupManager.GenerateType(player.abstractCreature, player.playerState.forceFullGrown, info: true);
-                        if (!player.playerState.forceFullGrown && player.PupState().pupType.adultType != null && PupManager.GenerateAdult(player.abstractCreature, player.PupState().pupType.adultType))
+                        if (!player.playerState.forceFullGrown && player.PupType().hasAdultModule)
                         {
-                            player.playerState.forceFullGrown = true;
+                            player.playerState.forceFullGrown = PupManager.GenerateAdult(player.abstractCreature, player.PupType().adultModule);
 
                         }
                     }
@@ -81,11 +78,11 @@
                 {
                     if (player.PupState().pupType != null)
                     {
-                        if (player.PupState().pupType.adultType != null && player.playerState.forceFullGrown)
+                        if (player.PupType().hasAdultModule && player.playerState.forceFullGrown)
                         {
-                            return player.PupState().pupType.adultType.adultName;
+                            return player.PupType().adultModule.name;
                         }
-                        return player.PupState().pupType.name;
+                        return player.PupType().name;
                     }
                     return slugpup;
                     

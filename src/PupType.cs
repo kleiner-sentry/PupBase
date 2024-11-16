@@ -60,10 +60,46 @@ namespace PupBase
             }
         }
 
+        public class AdultModule
+        {
+            public SlugcatStats.Name name;
+
+            public int foodToHibernate = 4;
+            public int maxFood = 7;
+
+            public bool disableAging = false;
+
+            public bool customAdultChance = true;
+            internal Configurable<int> adultChanceConfig;
+            public readonly int defaultAdultChance;
+            public int adultChance
+            {
+                get { return (customAdultChance && adultChanceConfig != null) ? adultChanceConfig.Value : defaultAdultChance; }
+            }
+
+            public AdultModule(SlugcatStats.Name name, int adultChance = 10)
+            {
+                if (name == null)
+                {
+                    Plugin.ModLogger.LogWarning("Please assign a name!!");
+                    this.name = new SlugcatStats.Name("TestpupAdult");
+                }
+                else
+                {
+                    this.name = name;
+                }
+
+                defaultAdultChance = Mathf.Clamp(adultChance, 0, 100);
+
+                adultChanceConfig = ModOptions.Instance.config.Bind("AdultChance" + this.name, defaultAdultChance, new ConfigurableInfo("Set the percentage chance this pup will spawn as an adult.", new ConfigAcceptableRange<int>(0, 100)));
+            }
+        }
+
         public string modName;
         public SlugcatStats.Name name;
 
-        public AdultType adultType;
+        public AdultModule adultModule;
+        public bool hasAdultModule {  get { return adultModule != null; } }
 
         public List<RegionModifier> regionModifiers;
         public List<CampaignModifier> campaignModifiers;
@@ -77,17 +113,14 @@ namespace PupBase
         public bool customSpawnWeight = true;
         internal Configurable<int> spawnWeightConfig;
         public readonly int defaultSpawnWeight;
-        public int spawnWeight
-        {
-            get { return (customSpawnWeight && spawnWeightConfig != null) ? spawnWeightConfig.Value : defaultSpawnWeight; }
-        }
+        public int spawnWeight { get { return (customSpawnWeight && spawnWeightConfig != null) ? spawnWeightConfig.Value : defaultSpawnWeight; } }
 
         /// <summary>
         /// Creates a new PupType. This constructor has every possible variable that you can customize.
         /// </summary>
         /// <param name="modName">Your mod name.</param>
-        /// <param name="name">The name to identify the PupType by. It's recommended that you register your own names.</param>
-        /// <param name="name">The name to identify the PupType by. It's recommended that you register your own names.</param>
+        /// <param name="name">The name to identify the PupType by. Be sure to register your own names.</param>
+        /// <param name="spawnWeight">The weighted chance that this puptype will be selected over other puptypes.</param>
         public PupType(string modName, SlugcatStats.Name name, int spawnWeight = 100)
         {
             this.modName = string.IsNullOrEmpty(modName) ? this.modName = "???" : modName;
@@ -107,7 +140,7 @@ namespace PupBase
         }
 
         /// <summary>
-        /// Calculates its actual spawn weight if it's in a region that it's supposed to spawn more/less in.
+        /// Calculates its proper spawnweight based on factors determined by its spawn modifiers, as well as other pups spawn modifiers. 
         /// </summary>
         /// <param name="world">Used to calculate if the pup is currently in a region.</param>
         /// <param name="debug">Outputs the results to the log.</param>
@@ -187,11 +220,10 @@ namespace PupBase
         {
             string str = "";
             str += RegionsToString();
-            if (!string.IsNullOrEmpty(str))
+            if (!string.IsNullOrEmpty(str) && campaignModifiers != null)
             {
-                str += ", ";
+                str += ", " + CampaignsToString();
             }
-            str += CampaignsToString();
             return str;
         }
 

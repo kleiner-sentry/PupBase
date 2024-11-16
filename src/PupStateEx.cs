@@ -7,6 +7,7 @@
     {
         public PupType pupType;
         public bool pioritize = false; // let this instance spawn over pups+ variants
+        public int age = 0;
     }
 
     public static class PlayerStateExtension
