@@ -16,8 +16,8 @@ namespace PupBase
             /// </summary>
             /// <param name="str">Represents the region ID.</param>
             /// <param name="multiplier">How much this modifier will multiply its spawn weight.</param>
-            /// <param name="exclusive">A tag used to make this specific campaign/region only allow your kind of pup. If another PupType has this exclusive tag in the same region as this is used in, they'll both spawn.</param>
-            /// <param name="unique">Make this kind of pup only spawn in this campaign/region.</param>
+            /// <param name="exclusive">A tag used to make this specific region only allow your kind of pup. If another PupType has this exclusive tag in the same region as this is used in, they'll both spawn.</param>
+            /// <param name="unique">Make this kind of pup only spawn in this region.</param>
             public RegionModifier(string str, float multiplier, bool exclusive = false, bool unique = false)
             {
                 this.str = str;
@@ -44,8 +44,8 @@ namespace PupBase
             /// </summary>
             /// <param name="str">Represents the name of a campaign.</param>
             /// <param name="multiplier">How much this modifier will multiply its spawn weight.</param>
-            /// <param name="exclusive">A tag used to make this specific campaign/region only allow your kind of pup. If another PupType has this exclusive tag in the same region as this is used in, they'll both spawn.</param>
-            /// <param name="unique">Make this kind of pup only spawn in this campaign/region.</param>
+            /// <param name="exclusive">A tag used to make this specific campaign only allow your kind of pup. If another PupType has this exclusive tag in the same campaign as this is used in, they'll both spawn.</param>
+            /// <param name="unique">Make this kind of pup only spawn in this campaign.</param>
             public CampaignModifier(string str, float multiplier, bool exclusive = false, bool unique = false)
             {
                 this.str = str;
