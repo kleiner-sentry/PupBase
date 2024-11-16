@@ -31,6 +31,7 @@ namespace PupBase
         /// <summary>
         /// Grabs the current list of PupTypes registered to PupManager, and returns them in the form of a list of its names.
         /// </summary>
+        /// <param name="includeAdultName">Will this method also include the adult names?</param>
         /// <returns>Returns a list of PupType names.</returns>
         public static List<SlugcatStats.Name> GetPupTypeListName(bool includeAdultName = false)
         {
@@ -50,6 +51,7 @@ namespace PupBase
         /// <summary>
         /// Grabs the current list of PupTypes registered to PupManager, and returns them in the form of a list of strings.
         /// </summary>
+        /// <param name="includeAdultName">Will this method also include the adult names?</param>
         /// <returns>Returns a list of PupType names in string form.</returns>
         public static List<string> GetPupTypeListString(bool includeAdultName = false)
         {
@@ -139,10 +141,10 @@ namespace PupBase
         }
 
         /// <summary>
-        /// Searches through all available PupTypes and returns the PupType Found if the puptypes' name is mentioned in the given string.
+        /// Searches through all available PupTypes and returns the PupType Found if the puptypes' name is in the given string.
         /// </summary>
         /// <param name="str">The string to compare against.</param>
-        /// <returns>Returns the PupType found if str conmtains a puptypes name.</returns>
+        /// <returns>Returns the PupType found if str equals a puptypes name.</returns>
         public static PupType GetPupTypeFromString(string str)
         {
             PupType pupType = null;
@@ -166,11 +168,11 @@ namespace PupBase
         }
 
         /// <summary>
-        /// Searches through all available PupTypes and returns true if the puptypes' name is mentioned in the given string. Outputs the PupType found.
+        /// Searches through all available PupTypes and returns true if the puptypes' name is in the given string. Outputs the PupType found.
         /// </summary>
         /// <param name="str">The string to compare against.</param>
         /// <param name="pupType">The output if a match is found.</param>
-        /// <returns>Returns true if str conmtains a puptypes name, and outputs the puptype it was found in.</returns>
+        /// <returns>Returns true if str equals a puptypes name, and outputs the puptype it was found in.</returns>
         public static bool TryGetPupTypeFromString(string str, out PupType pupType)
         {
             pupType = null;

@@ -14,7 +14,7 @@ namespace PupBase
             /// <summary>
             /// Allows you to choose if your Puptype will be chosen more or less freqently in specific regions.
             /// </summary>
-            /// <param name="str">Can represent either the region ID or the name of a campaign. If this is for Arena mode, then put "Arena".</param>
+            /// <param name="str">Represents the region ID.</param>
             /// <param name="multiplier">How much this modifier will multiply its spawn weight.</param>
             /// <param name="exclusive">A tag used to make this specific campaign/region only allow your kind of pup. If another PupType has this exclusive tag in the same region as this is used in, they'll both spawn.</param>
             /// <param name="unique">Make this kind of pup only spawn in this campaign/region.</param>
@@ -42,7 +42,7 @@ namespace PupBase
             /// <summary>
             /// Allows you to choose if your Puptype will be chosen more or less freqently in specific campaigns.
             /// </summary>
-            /// <param name="str">Can represent either the region ID or the name of a campaign. If this is for Arena mode, then put "Arena".</param>
+            /// <param name="str">Represents the name of a campaign.</param>
             /// <param name="multiplier">How much this modifier will multiply its spawn weight.</param>
             /// <param name="exclusive">A tag used to make this specific campaign/region only allow your kind of pup. If another PupType has this exclusive tag in the same region as this is used in, they'll both spawn.</param>
             /// <param name="unique">Make this kind of pup only spawn in this campaign/region.</param>
@@ -77,6 +77,11 @@ namespace PupBase
                 get { return (customAdultChance && adultChanceConfig != null) ? adultChanceConfig.Value : defaultAdultChance; }
             }
 
+            /// <summary>
+            /// Creates a new PupType. This constructor has every possible variable that you can customize.
+            /// </summary>
+            /// <param name="name">The name to identify the PupType by. Be sure to register your own names.</param>
+            /// <param name="adultChance">the chance that this pup will be selected as an adult. Ranges from 0-100.</param>
             public AdultModule(SlugcatStats.Name name, int adultChance = 10)
             {
                 if (name == null)
