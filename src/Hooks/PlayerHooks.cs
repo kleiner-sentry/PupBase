@@ -18,7 +18,19 @@
                 statsCurs.GotoNext(MoveType.After, (Instruction x) => x.MatchLdarg(0));
                 statsCurs.GotoNext(MoveType.After, (Instruction x) => x.MatchLdfld(typeof(Player).GetField(nameof(Player.SlugCatClass))));
                 statsCurs.Emit(OpCodes.Ldarg_0);
-                statsCurs.EmitDelegate((SlugcatStats.Name name, Player player) => player.PupType() != null ? player.PupType().name : name);
+                statsCurs.EmitDelegate((SlugcatStats.Name name, Player player) =>
+                {
+                    if (player.PupState().pupType != null)
+                    {
+                        if (player.PupType().hasAdultModule && player.playerState.forceFullGrown)
+                        {
+                            return player.PupType().adultModule.name;
+                        }
+                        return player.PupType().name;
+                    }
+                    return name;
+
+                });
             }
             catch (Exception e)
             {
@@ -36,32 +48,45 @@
                 statsCurs.Emit(OpCodes.Ldarg_1);
                 statsCurs.EmitDelegate(delegate (Player player)
                 {
-                    if (Plugin.SlugpupStuff && PupManager.IsPupInUseBySlugpupStuff(player.playerState))
+                    if (Plugin.SlugpupStuff && PupManager.IsPupInUseBySlugpupStuff(player.playerState) && player.PupState() != null)
                     {
-                        if (player.PupType() != null)
+                        if (player.PupState().pioritize)
                         {
-                            if (player.PupType().pioritize)
-                            {
-                                PupManager.OverrideSlugpupStuffVariant(player.playerState, null);
-                                Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting Variant to null.");
-                            }
-                            else
-                            {
-                                player.PupState().pupType = null;
-                                Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting PupType to null.");
-                            }
+                            PupManager.OverrideSlugpupStuffVariant(player.playerState, null);
+                            Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting Variant to null.");
+                        }
+                        else
+                        {
+                            player.PupState().pupType = null;
+                            Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting PupType to null.");
                         }
                     }
                     else if (player.isSlugpup && player.isNPC && player.PupType() == null && !((Plugin.Pearlcat && PupManager.IsPearlpup(player.abstractCreature)) || PupManager.PupIDBlacklist.Contains(player.abstractCreature.ID.RandomSeed)))
                     {
-                        player.PupState().pupType = PupManager.GenerateType(player.abstractCreature, info: true);
+                        player.PupState().pupType = PupManager.GenerateType(player.abstractCreature, player.playerState.forceFullGrown, info: true);
+                        if (!player.playerState.forceFullGrown && player.PupType().hasAdultModule)
+                        {
+                            player.playerState.forceFullGrown = PupManager.GenerateAdult(player.abstractCreature, player.PupType().adultModule);
+
+                        }
                     }
-                    if (player.PupType() != null && player.PupType().mature) player.playerState.forceFullGrown = true;
                 });
             
                 statsCurs.GotoNext(MoveType.After, (Instruction x) => x.MatchLdsfld<MoreSlugcatsEnums.SlugcatStatsName>("Slugpup"));
                 statsCurs.Emit(OpCodes.Ldarg_1);
-                statsCurs.EmitDelegate((SlugcatStats.Name slugpup, Player player) => player.PupType() != null ? player.PupType().name : slugpup);
+                statsCurs.EmitDelegate((SlugcatStats.Name slugpup, Player player) => 
+                {
+                    if (player.PupState().pupType != null)
+                    {
+                        if (player.PupType().hasAdultModule && player.playerState.forceFullGrown)
+                        {
+                            return player.PupType().adultModule.name;
+                        }
+                        return player.PupType().name;
+                    }
+                    return slugpup;
+                    
+                });
             }
             catch (Exception e)
             {

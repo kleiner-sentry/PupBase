@@ -5,25 +5,25 @@ namespace PupBase
     [BepInPlugin(MOD_ID, MOD_NAME, VERSION)]
     class Plugin : BaseUnityPlugin
     {
-        public const string MOD_ID = "Antoneeee.PupBase";
+        internal const string MOD_ID = "Antoneeee.PupBase";
 
-        public const string MOD_NAME = "PupBase";
+        internal const string MOD_NAME = "PupBase";
 
-        public const string VERSION = "1.1.7";
+        internal const string VERSION = "1.2.1";
 
-        public const string AUTHORS = "Antoneeee";
+        internal const string AUTHORS = "Antoneeee";
 
-        private bool IsInit = false;
+        internal bool IsInit = false;
 
-        private bool PostIsInit = false;
+        internal bool PostIsInit = false;
 
-        public static bool BeastMasterPupExtras = false;
+        internal static bool BeastMasterPupExtras = false;
 
-        public static bool Pearlcat = false;
+        internal static bool Pearlcat = false;
 
-        public static bool SlugpupStuff = false;
+        internal static bool SlugpupStuff = false;
 
-        public static BepInEx.Logging.ManualLogSource ModLogger;
+        internal static BepInEx.Logging.ManualLogSource ModLogger;
 
         public void OnEnable()
         {
@@ -45,6 +45,8 @@ namespace PupBase
             try
             {
                 if (IsInit) return;
+
+                SlugpupNames.RegisterValues();
 
                 ModOptions.RegisterOI();
                 Hooks.PlayerHooks.Init();
@@ -100,7 +102,8 @@ namespace PupBase
         public static void DevConsoleCommand()
         {
             string[] tags = ["Voidsea", "Winter", "Ignorecycle", "TentacleImmune", "Lavasafe", "AlternateForm", "PreCycle", "Night"];
-            string[] types = [..PupManager.GetPupTypeListString().ToArray(), "Random", "Mature", "Child"];
+            string[] types = [..PupManager.GetPupTypeListString().ToArray(), "Random"];
+            string[] mature = ["Random", "Mature", "Child"];
             new CommandBuilder("spawn_slugNPC")
                 .RunGame((game, arguments) =>
                 {
@@ -110,6 +113,7 @@ namespace PupBase
                         {
                             EntityID? id = null;
                             string pupType = null;
+                            string maturity = null;
                             bool? prioritize = null;
                             string[] tempTags = [];
                             foreach (string argument in arguments)
@@ -140,6 +144,10 @@ namespace PupBase
                                     {
                                         pupType = argument;
                                     }
+                                    else if (mature.Contains(argument))
+                                    {
+                                        maturity = argument;
+                                    }
 
                                     foreach (string testTag in tags)
                                     {
@@ -159,26 +167,44 @@ namespace PupBase
                             }
 
                             AbstractCreature abstractPup = new AbstractCreature(game.world, StaticWorld.GetCreatureTemplate(MoreSlugcatsEnums.CreatureTemplateType.SlugNPC), null, GameConsole.TargetPos.Room.realizedRoom.GetWorldCoordinate(GameConsole.TargetPos.Pos), id ?? game.GetNewID());
-                            if (pupType != null && abstractPup.state is PlayerState npcState)
+                            if (abstractPup.state is PlayerState npcState)
                             {
-                                switch (pupType)
+                                npcState.PupState().pioritize = prioritize == false ? false : true;
+                                if (pupType != null && PupManager.TryGetPupTypeFromString(pupType, out PupType type))
                                 {
-                                    case "Mature":
-                                        npcState.PupState().pupType = PupManager.GenerateType(abstractPup, maturity: 2, info: true);
-                                        npcState.PupType().pioritize = prioritize == true ? true : false;
-                                        break;
-                                    case "Child":
-                                        npcState.PupState().pupType = PupManager.GenerateType(abstractPup, maturity: 1, info: true);
-                                        npcState.PupType().pioritize = prioritize == true ? true : false;
-                                        break;
-                                    default:
-                                        if (PupManager.TryGetPupTypeFromString(pupType, out PupType type))
-                                        {
-                                            npcState.PupState().pupType = type;
-                                            ModLogger.LogInfo("Assigned " + abstractPup.ID.ToString() + " Type " + npcState.PupType().name);
-                                            npcState.PupType().pioritize = prioritize == false ? false : true;
-                                        }
-                                        break;
+                                    npcState.PupState().pupType = type;
+                                    if (npcState.PupType().hasAdultModule)
+                                    {
+                                        npcState.forceFullGrown = PupManager.GenerateAdult(abstractPup, npcState.PupType().adultModule, false);
+                                    }
+                                    npcState.PupState().pioritize = prioritize == true ? true : false;
+                                }
+                                if (maturity != null)
+                                {
+                                    switch (maturity)
+                                    {
+                                        case "Mature":
+                                            if (npcState.PupType() == null || (npcState.PupType() != null && !npcState.PupType().hasAdultModule))
+                                            {
+                                                npcState.PupState().pupType = PupManager.GenerateType(abstractPup, true, info: false);
+                                            }
+                                            npcState.forceFullGrown = true;
+                                            npcState.PupState().pioritize = prioritize == true ? true : false;
+                                            break;
+                                        case "Child":
+                                            if (npcState.PupType() == null)
+                                            {
+                                                npcState.PupState().pupType = PupManager.GenerateType(abstractPup, false, info: false);
+                                            }
+                                            npcState.forceFullGrown = false;
+                                            npcState.PupState().pioritize = prioritize == true ? true : false;
+                                            break;
+                                    }
+                                }
+                                if (npcState.PupType() != null)
+                                {
+                                    ModLogger.LogInfo("Assigned " + abstractPup.ID.ToString() + " Type " + npcState.PupType().name);
+                                    ModLogger.LogInfo(npcState.forceFullGrown ? " set as an adult." : " set as a child.");
                                 }
                             }
                             if (tempTags.Length > 0)
@@ -210,18 +236,24 @@ namespace PupBase
                         ModLogger.LogWarning(ex.ToString());
                     }
                 })
-                .Help("spawn_slugNPC [type?] [prioritize: true] [ID?] [args...]")
+                .Help("spawn_slugNPC [type?] [maturity?] [prioritize: true] [ID?] [args...]")
                 .AutoComplete(arguments =>
                 {
                     bool type = false;
+                    bool mat = false;
                     foreach (string argument in arguments)
                     {
                         if (types.Contains(argument))
                         {
                             type = true;
                         }
+                        if (mature.Contains(argument))
+                        {
+                            mat = true;
+                        }
                     }
                     if (!type) return types;
+                    else if (!mat) return mature;
                     else return tags;
                 })
                 .Register();
@@ -235,7 +267,7 @@ namespace PupBase
         private List<string> DMSValidPupNames(Func<List<string>> orig)
         {
             List<string> list = orig();
-            List<string> tempList = PupManager.GetPupTypeListString();
+            List<string> tempList = PupManager.GetPupTypeListString(true);
 
             foreach (string str in list)
             {

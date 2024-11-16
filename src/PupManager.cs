@@ -6,9 +6,7 @@ namespace PupBase
 {
     public static class PupManager
     {
-        private static List<PupType> pupTypeList = [new PupType(Plugin.MOD_NAME, MoreSlugcatsEnums.SlugcatStatsName.Slugpup, spawnModifiersList: new List<PupType.SpawnModifiers> { new PupType.SpawnModifiers("SU", 1, 1.2f) })];
-
-        internal static List<PupType.SpawnModifiers> spawnModifiersList = new List<PupType.SpawnModifiers>();
+        private static List<PupType> pupTypeList = [new PupType(Plugin.MOD_NAME, MoreSlugcatsEnums.SlugcatStatsName.Slugpup) { regionModifiers = [new("SU", 1.2f)], adultModule = new PupType.AdultModule(SlugpupNames.SlugpupAdult) }];
 
         public static List<int> PupIDBlacklist = [1000, 1001, 2220, 3118, 4118, 765];
 
@@ -20,10 +18,6 @@ namespace PupBase
         public static PupType Register(PupType pupType)
         {
             pupTypeList.Add(pupType);
-            if (pupType.spawnModifiersList != null)
-            {
-                spawnModifiersList.AddRange(pupType.spawnModifiersList);
-            }
             Plugin.ModLogger.LogInfo("Registered: " + pupType.name);
             return pupType;
         }
@@ -37,14 +31,19 @@ namespace PupBase
         /// <summary>
         /// Grabs the current list of PupTypes registered to PupManager, and returns them in the form of a list of its names.
         /// </summary>
+        /// <param name="includeAdultName">Will this method also include the adult names?</param>
         /// <returns>Returns a list of PupType names.</returns>
-        public static List<SlugcatStats.Name> GetPupTypeListName()
+        public static List<SlugcatStats.Name> GetPupTypeListName(bool includeAdultName = false)
         {
             List<SlugcatStats.Name> tempList = [];
 
-            foreach (PupType pupType in pupTypeList)
+            foreach (PupType type in GetPupTypeList())
             {
-                tempList.Add(pupType.name);
+                tempList.Add(type.name);
+                if (includeAdultName && type.hasAdultModule)
+                {
+                    tempList.Add(type.adultModule.name);
+                }
             }
             return tempList;
         }
@@ -52,14 +51,19 @@ namespace PupBase
         /// <summary>
         /// Grabs the current list of PupTypes registered to PupManager, and returns them in the form of a list of strings.
         /// </summary>
+        /// <param name="includeAdultName">Will this method also include the adult names?</param>
         /// <returns>Returns a list of PupType names in string form.</returns>
-        public static List<string> GetPupTypeListString()
+        public static List<string> GetPupTypeListString(bool includeAdultName = false)
         {
             List<string> tempList = [];
 
-            foreach (PupType pupType in pupTypeList)
+            foreach (PupType type in GetPupTypeList())
             {
-                tempList.Add(pupType.name.value);
+                tempList.Add(type.name.value);
+                if (includeAdultName && type.hasAdultModule)
+                {
+                    tempList.Add(type.adultModule.name.value);
+                }
             }
             return tempList;
         }
@@ -71,37 +75,21 @@ namespace PupBase
         /// <returns>Returns the PupType that it found.</returns>
         public static PupType GetPupType(SlugcatStats.Name name)
         {
-            if (pupTypeList != null)
+            if (GetPupTypeList() != null)
             {
-                foreach (PupType pupType in pupTypeList)
+                foreach (PupType type in GetPupTypeList())
                 {
-                    if (pupType.name == name)
+                    if (type.name == name)
                     {
-                        return pupType;
+                        return type;
+                    }
+                    else if (type.hasAdultModule && type.adultModule.name == name)
+                    {
+                        return type;
                     }
                 }
             }
             return null;
-        }
-
-        /// <summary>
-        /// Searches through all available PupTypes and returns true if the puptypes' name matches the given name.
-        /// </summary>
-        /// <param name="name">The name to compare against.</param>
-        /// <returns>Returns true if name matches with a puptypes name.</returns>
-        public static bool TryGetPupType(SlugcatStats.Name name)
-        {
-            if (pupTypeList != null)
-            {
-                foreach (PupType type in pupTypeList)
-                {
-                    if (type.name == name)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
         }
 
         /// <summary>
@@ -113,11 +101,16 @@ namespace PupBase
         public static bool TryGetPupType(SlugcatStats.Name name, out PupType pupType)
         {
             pupType = null;
-            if (pupTypeList != null)
+            if (GetPupTypeList() != null)
             {
-                foreach (PupType type in pupTypeList)
+                foreach (PupType type in GetPupTypeList())
                 {
                     if (type.name == name)
+                    {
+                        pupType = type;
+                        break;
+                    }
+                    else if (type.hasAdultModule && type.adultModule.name == name)
                     {
                         pupType = type;
                         break;
@@ -128,18 +121,43 @@ namespace PupBase
         }
 
         /// <summary>
-        /// Searches through all available PupTypes and returns the PupType Found if the puptypes' name is mentioned in the given string.
+        /// Searches through all available PupTypes and returns true if the name given matches with a PupTypes adult name.
+        /// </summary>
+        /// <param name="name">The name to compare against.</param>\
+        /// <returns>Returns true if the name given matches with a PupTypes adult name.</returns>
+        public static bool isAdultName(SlugcatStats.Name name)
+        {
+            if (GetPupTypeList() != null)
+            {
+                foreach (PupType type in GetPupTypeList())
+                {
+                    if (type.hasAdultModule && type.adultModule.name == name)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Searches through all available PupTypes and returns the PupType Found if the puptypes' name is in the given string.
         /// </summary>
         /// <param name="str">The string to compare against.</param>
-        /// <returns>Returns the PupType found if str conmtains a puptypes name.</returns>
+        /// <returns>Returns the PupType found if str equals a puptypes name.</returns>
         public static PupType GetPupTypeFromString(string str)
         {
             PupType pupType = null;
-            if (pupTypeList != null)
+            if (GetPupTypeList() != null)
             {
-                foreach (PupType type in pupTypeList)
+                foreach (PupType type in GetPupTypeList())
                 {
-                    if (str.Contains(type.name.value) || str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase))
+                    if (str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase))
+                    {
+                        pupType = type;
+                        break;
+                    }
+                    else if (type.hasAdultModule && str.Equals(type.adultModule.name.value, StringComparison.OrdinalIgnoreCase))
                     {
                         pupType = type;
                         break;
@@ -150,39 +168,24 @@ namespace PupBase
         }
 
         /// <summary>
-        /// Searches through all available PupTypes and returns true if the puptypes' name is mentioned in the given string.
-        /// </summary>
-        /// <param name="str">The string to compare against.</param>
-        /// <returns>Returns true if str conmtains a puptypes name.</returns>
-        public static bool TryGetPupTypeFromString(string str)
-        {
-            if (pupTypeList != null)
-            {
-                foreach (PupType type in pupTypeList)
-                {
-                    if (str.Contains(type.name.value) || str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Searches through all available PupTypes and returns true if the puptypes' name is mentioned in the given string. Outputs the PupType found.
+        /// Searches through all available PupTypes and returns true if the puptypes' name is in the given string. Outputs the PupType found.
         /// </summary>
         /// <param name="str">The string to compare against.</param>
         /// <param name="pupType">The output if a match is found.</param>
-        /// <returns>Returns true if str conmtains a puptypes name, and outputs the puptype it was found in.</returns>
+        /// <returns>Returns true if str equals a puptypes name, and outputs the puptype it was found in.</returns>
         public static bool TryGetPupTypeFromString(string str, out PupType pupType)
         {
             pupType = null;
             if (pupTypeList != null)
             {
-                foreach (PupType type in pupTypeList)
+                foreach (PupType type in GetPupTypeList())
                 {
-                    if (str.Contains(type.name.value) || str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase))
+                    if (str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase))
+                    {
+                        pupType = type;
+                        break;
+                    }
+                    else if (type.hasAdultModule && str.Equals(type.adultModule.name.value, StringComparison.OrdinalIgnoreCase))
                     {
                         pupType = type;
                         break;
@@ -196,35 +199,19 @@ namespace PupBase
         /// Generates a new PupType. Outputs the assigned PupType. If no pup is generated, it'll output a regular Slugpup instead.
         /// </summary>
         /// <param name="abstractCreature">Used to gather all necessary data.</param>
-        /// <param name="maturity">1 = only children spawn, 2 = only adults spawn</param>
-        /// <param name="info">Outputs info in the log</param>
+        /// <param name="adultTypeOnly">Will only generate pups that have the Adult module.</param>
+        /// <param name="info">Outputs info to the log</param>
         /// <returns>Outputs the newly generated PupType.</returns>
-        public static PupType GenerateType(AbstractCreature abstractCreature, int maturity = 0, bool info = true)
+        public static PupType GenerateType(AbstractCreature abstractCreature, bool adultTypeOnly = false, bool info = true)
         {
             // Calculate total weight.
             float totalWeight = 0;
             List<object[]> listedWeights = new List<object[]>();
-            foreach (PupType pupType in pupTypeList)
+            foreach (PupType type in pupTypeList)
             {
-                if (maturity == 1)
+                if (!adultTypeOnly || (adultTypeOnly && type.hasAdultModule))
                 {
-                    if (!pupType.mature)
-                    {
-                        listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, info && ModOptions.enableDebug.Value)]);
-                        totalWeight += (float)listedWeights.Last()[1];
-                    }
-                }
-                else if (maturity == 2)
-                {
-                    if (pupType.mature)
-                    {
-                        listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, info && ModOptions.enableDebug.Value)]);
-                        totalWeight += (float)listedWeights.Last()[1];
-                    }
-                }
-                else
-                {
-                    listedWeights.Add([pupType, pupType.CalculateWeight(abstractCreature.world, info && ModOptions.enableDebug.Value)]);
+                    listedWeights.Add([type, type.CalculateWeight(abstractCreature.world, info && ModOptions.enableDebug.Value)]);
                     totalWeight += (float)listedWeights.Last()[1];
                 }
             }
@@ -233,7 +220,7 @@ namespace PupBase
             Random.State state = Random.state;
             Random.InitState(abstractCreature.ID.RandomSeed);
 
-            float probability = Random.value * totalWeight;
+            float seed = Random.value * totalWeight;
 
             Random.state = state;
 
@@ -243,7 +230,7 @@ namespace PupBase
             {
                 sum += (float)obj[1];
 
-                if (sum >= probability)
+                if (sum >= seed)
                 {
                     if (info) Plugin.ModLogger.LogInfo("Generated " + abstractCreature.ID.ToString() + " Type " + ((PupType)obj[0]).name);
                     return (PupType)obj[0];
@@ -254,59 +241,25 @@ namespace PupBase
         }
 
         /// <summary>
-        /// Generates a new PupType. Outputs the assigned PupType. If no pup is generated, it'll output a regular Slugpup instead. Will not generate a type based on its ID.
+        /// determines if the pup ID given will be an adult or not.
         /// </summary>
-        /// <param name="world">Used to gather all necessary data.</param>
-        /// <param name="maturity">1 = only children spawn, 2 = only adults spawn</param>
-        /// <param name="debug">Outputs the results to the log.</param>
+        /// <param name="abstractCreature">Used to gather all necessary data.</param>
+        /// <param name="type">The module used to determine the likelyhood of it being an adult.</param>
+        /// <param name="info">Outputs info to the log</param>
         /// <returns>Outputs the newly generated PupType.</returns>
-        public static PupType GenerateType(World world, int maturity = 0, bool info = false)
+        public static bool GenerateAdult(AbstractCreature abstractCreature, PupType.AdultModule type, bool info = true)
         {
-            // Calculate total weight.
-            float totalWeight = 0;
-            List<object[]> listedWeights = new List<object[]>();
-            foreach (PupType pupType in pupTypeList)
-            {
-                if (maturity == 1)
-                {
-                    if (!pupType.mature)
-                    {
-                        listedWeights.Add([pupType, pupType.CalculateWeight(world, info && ModOptions.enableDebug.Value)]);
-                        totalWeight += (float)listedWeights.Last()[1];
-                    }
-                }
-                else if (maturity == 2)
-                {
-                    if (pupType.mature)
-                    {
-                        listedWeights.Add([pupType, pupType.CalculateWeight(world, info && ModOptions.enableDebug.Value)]);
-                        totalWeight += (float)listedWeights.Last()[1];
-                    }
-                }
-                else
-                {
-                    listedWeights.Add([pupType, pupType.CalculateWeight(world, info && ModOptions.enableDebug.Value)]);
-                    totalWeight += (float)listedWeights.Last()[1];
-                }
-            }
+            // Generate random number based on ID
+            Random.State state = Random.state;
+            Random.InitState(abstractCreature.ID.RandomSeed);
 
-            // Generate random number
-            float probability = Random.value * totalWeight;
+            float seed = Random.value;
 
-            // Assign PupType based on weighted probability
-            float sum = 0;
-            foreach (object[] obj in listedWeights)
-            {
-                sum += (float)obj[1];
+            Random.state = state;
 
-                if (sum >= probability)
-                {
-                    if (info) Plugin.ModLogger.LogInfo("Generated Type " + ((PupType)obj[0]).name);
-                    return (PupType)obj[0];
-                }
-            }
-            if (info) Plugin.ModLogger.LogInfo("Failed to generate a PupType. Defaulting to Slugpup.");
-            return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
+            bool roll = (type.adultChance / 100f) >= seed;
+            if (info) Plugin.ModLogger.LogInfo(abstractCreature.ID.ToString() + (roll ? " rolled as an adult." : " rolled as a child.") );
+            return roll;
         }
 
         /// <summary>
