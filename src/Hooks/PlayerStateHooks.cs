@@ -41,6 +41,9 @@ namespace PupBase.Hooks
                     case "Age":
                         self.PupState().age = int.Parse(array[1], NumberStyles.Any, CultureInfo.InvariantCulture);
                         break;
+                    case "Prioritize":
+                        self.PupState().pioritize = bool.Parse(array[1]);
+                        break;
                     case "SlugcatCharacter":
                         if (Plugin.BeastMasterPupExtras && !array[1].Equals("Slugpup"))
                         {
