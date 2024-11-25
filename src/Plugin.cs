@@ -169,7 +169,7 @@ namespace PupBase
                             AbstractCreature abstractPup = new AbstractCreature(game.world, StaticWorld.GetCreatureTemplate(MoreSlugcatsEnums.CreatureTemplateType.SlugNPC), null, GameConsole.TargetPos.Room.realizedRoom.GetWorldCoordinate(GameConsole.TargetPos.Pos), id ?? game.GetNewID());
                             if (abstractPup.state is PlayerState npcState)
                             {
-                                npcState.PupState().pioritize = prioritize == false ? false : true;
+                                npcState.PupState().pioritize = prioritize != false;
                                 if (pupType != null && PupManager.TryGetPupTypeFromString(pupType, out PupType type))
                                 {
                                     npcState.PupState().pupType = type;
@@ -177,7 +177,7 @@ namespace PupBase
                                     {
                                         npcState.forceFullGrown = PupManager.GenerateAdult(abstractPup, npcState.PupType().adultModule, false);
                                     }
-                                    npcState.PupState().pioritize = prioritize == true ? true : false;
+                                    npcState.PupState().pioritize = prioritize == true;
                                 }
                                 if (maturity != null)
                                 {
@@ -189,7 +189,7 @@ namespace PupBase
                                                 npcState.PupState().pupType = PupManager.GenerateType(abstractPup, true, info: false);
                                             }
                                             npcState.forceFullGrown = true;
-                                            npcState.PupState().pioritize = prioritize == true ? true : false;
+                                            npcState.PupState().pioritize = prioritize == true;
                                             break;
                                         case "Child":
                                             if (npcState.PupType() == null)
@@ -197,7 +197,7 @@ namespace PupBase
                                                 npcState.PupState().pupType = PupManager.GenerateType(abstractPup, false, info: false);
                                             }
                                             npcState.forceFullGrown = false;
-                                            npcState.PupState().pioritize = prioritize == true ? true : false;
+                                            npcState.PupState().pioritize = prioritize == true;
                                             break;
                                     }
                                 }
