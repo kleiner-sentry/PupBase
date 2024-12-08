@@ -41,7 +41,7 @@
                 {
                     if (Plugin.SlugpupStuff && PupManager.IsPupInUseBySlugpupStuff(player.playerState) && player.PupState() != null)
                     {
-                        if (player.PupState().pioritize)
+                        if (player.PupState().prioritize)
                         {
                             PupManager.OverrideSlugpupStuffVariant(player.playerState, null);
                             Plugin.ModLogger.LogInfo("Pups+ variant detected. Setting Variant to null.");

@@ -62,7 +62,7 @@ namespace PupBase
 
         public class AdultModule
         {
-            public SlugcatStats.Name name;
+            public readonly SlugcatStats.Name name;
 
             public int foodToHibernate = 4;
             public int maxFood = 7;
@@ -101,8 +101,8 @@ namespace PupBase
             }
         }
 
-        public string modName;
-        public SlugcatStats.Name name;
+        public readonly string modName;
+        public readonly SlugcatStats.Name name;
 
         public AdultModule adultModule;
         public bool hasAdultModule {  get { return adultModule != null; } }

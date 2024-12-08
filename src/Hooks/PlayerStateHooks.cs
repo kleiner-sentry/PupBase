@@ -34,7 +34,7 @@ namespace PupBase.Hooks
                         if (PupManager.TryGetPupTypeFromString(array[1], out var type))
                         {
                             self.PupState().pupType = type;
-                            self.PupState().pioritize = true;
+                            self.PupState().prioritize = true;
                             Plugin.ModLogger.LogInfo("Assigned from save " + self.player.ID.ToString() + " Type " + type.name);
                         }
                         break;
@@ -42,7 +42,7 @@ namespace PupBase.Hooks
                         self.PupState().age = int.Parse(array[1], NumberStyles.Any, CultureInfo.InvariantCulture);
                         break;
                     case "Prioritize":
-                        self.PupState().pioritize = bool.Parse(array[1]);
+                        self.PupState().prioritize = bool.Parse(array[1]);
                         break;
                     case "SlugcatCharacter":
                         if (Plugin.BeastMasterPupExtras && !array[1].Equals("Slugpup"))

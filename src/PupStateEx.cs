@@ -6,7 +6,7 @@
     public class PupStateEx
     {
         public PupType pupType;
-        public bool pioritize = false; // let this instance spawn over pups+ variants
+        public bool prioritize = false; // let this instance spawn over pups+ variants
         public int age = 0;
     }
 
