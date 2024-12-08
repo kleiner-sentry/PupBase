@@ -20,16 +20,7 @@
                 statsCurs.Emit(OpCodes.Ldarg_0);
                 statsCurs.EmitDelegate((SlugcatStats.Name name, Player player) =>
                 {
-                    if (player.PupState().pupType != null)
-                    {
-                        if (player.PupType().hasAdultModule && player.playerState.forceFullGrown)
-                        {
-                            return player.PupType().adultModule.name;
-                        }
-                        return player.PupType().name;
-                    }
-                    return name;
-
+                    return player.PupState().pupType != null ? player.PupType().hasAdultModule && player.playerState.forceFullGrown ? player.PupType().adultModule.name : player.PupType().name : name;
                 });
             }
             catch (Exception e)
@@ -76,16 +67,7 @@
                 statsCurs.Emit(OpCodes.Ldarg_1);
                 statsCurs.EmitDelegate((SlugcatStats.Name slugpup, Player player) => 
                 {
-                    if (player.PupState().pupType != null)
-                    {
-                        if (player.PupType().hasAdultModule && player.playerState.forceFullGrown)
-                        {
-                            return player.PupType().adultModule.name;
-                        }
-                        return player.PupType().name;
-                    }
-                    return slugpup;
-                    
+                    return player.PupState().pupType != null ? player.PupType().hasAdultModule && player.playerState.forceFullGrown ? player.PupType().adultModule.name : player.PupType().name : slugpup;
                 });
             }
             catch (Exception e)

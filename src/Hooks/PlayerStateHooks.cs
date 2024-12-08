@@ -64,13 +64,12 @@ namespace PupBase.Hooks
                 {
                     self.PupState().age++;
                 }
-                if (self.PupState().age >= ModOptions.cyclesTillGrown.Value && !self.forceFullGrown)
+                if (!self.forceFullGrown && self.PupState().age >= Mathf.Clamp(Mathf.RoundToInt(ModOptions.cyclesTillGrown.Value * self.PupType().adultModule.agingMultiplier), 1, 100000))
                 {
                     self.forceFullGrown = true;
                     self.foodInStomach = self.PupType().adultModule.foodToHibernate;
                 }
             }
-            //Plugin.ModLogger.LogInfo(self.PupState().age);
 
             orig(self);
         }
@@ -84,16 +83,7 @@ namespace PupBase.Hooks
                 foodCurs.Emit(OpCodes.Ldarg_0);
                 foodCurs.EmitDelegate((SlugcatStats.Name slugpup, PlayerNPCState self) =>
                 {
-                    if (self.PupType() != null)
-                    {
-                        if (self.PupType().hasAdultModule && self.forceFullGrown)
-                        {
-                            return self.PupType().adultModule.name;
-                        }
-                        return self.PupType().name;
-                    }
-                    return slugpup;
-                    ;
+                    return self.PupState().pupType != null ? self.PupType().hasAdultModule && self.forceFullGrown ? self.PupType().adultModule.name : self.PupType().name : slugpup;
                 }); 
             }
         }
