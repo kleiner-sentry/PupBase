@@ -68,6 +68,7 @@ namespace PupBase
             public int maxFood = 7;
 
             public bool disableAging = false;
+            public float agingMultiplier = 1;
 
             public bool customAdultChance = true;
             internal Configurable<int> adultChanceConfig;
@@ -84,7 +85,7 @@ namespace PupBase
             /// <param name="adultChance">the chance that this pup will be selected as an adult. Ranges from 0-100.</param>
             public AdultModule(SlugcatStats.Name name, int adultChance = 10)
             {
-                if (name == null)
+                if (string.IsNullOrEmpty(name.value))
                 {
                     Plugin.ModLogger.LogWarning("Please assign a name!!");
                     this.name = new SlugcatStats.Name("TestpupAdult");
@@ -129,7 +130,7 @@ namespace PupBase
         public PupType(string modName, SlugcatStats.Name name, int spawnWeight = 100)
         {
             this.modName = string.IsNullOrEmpty(modName) ? this.modName = "???" : modName;
-            if (name == null)
+            if (string.IsNullOrEmpty(name.value))
             {
                 Plugin.ModLogger.LogWarning(this.modName + ", Please assign a name!!");
                 this.name = new SlugcatStats.Name("Testpup");

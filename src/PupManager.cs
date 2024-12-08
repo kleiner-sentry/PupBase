@@ -79,11 +79,7 @@ namespace PupBase
             {
                 foreach (PupType type in GetPupTypeList())
                 {
-                    if (type.name == name)
-                    {
-                        return type;
-                    }
-                    else if (type.hasAdultModule && type.adultModule.name == name)
+                    if (type.name == name || (type.hasAdultModule && type.adultModule.name == name))
                     {
                         return type;
                     }
@@ -105,12 +101,52 @@ namespace PupBase
             {
                 foreach (PupType type in GetPupTypeList())
                 {
-                    if (type.name == name)
+                    if (type.name == name || (type.hasAdultModule && type.adultModule.name == name))
                     {
                         pupType = type;
                         break;
                     }
-                    else if (type.hasAdultModule && type.adultModule.name == name)
+                }
+            }
+            return pupType != null;
+        }
+
+        /// <summary>
+        /// Searches through all available PupTypes and returns the PupType Found if the puptypes' name is in the given string.
+        /// </summary>
+        /// <param name="str">The string to compare against.</param>
+        /// <returns>Returns the PupType found if str equals a puptypes name.</returns>
+        public static PupType GetPupTypeFromString(string str)
+        {
+            PupType pupType = null;
+            if (GetPupTypeList() != null)
+            {
+                foreach (PupType type in GetPupTypeList())
+                {
+                    if (str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase) || (type.hasAdultModule && str.Equals(type.adultModule.name.value, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        pupType = type;
+                        break;
+                    }
+                }
+            }
+            return pupType;
+        }
+
+        /// <summary>
+        /// Searches through all available PupTypes and returns true if the puptypes' name is in the given string. Outputs the PupType found.
+        /// </summary>
+        /// <param name="str">The string to compare against.</param>
+        /// <param name="pupType">The output if a match is found.</param>
+        /// <returns>Returns true if str equals a puptypes name, and outputs the puptype it was found in.</returns>
+        public static bool TryGetPupTypeFromString(string str, out PupType pupType)
+        {
+            pupType = null;
+            if (pupTypeList != null)
+            {
+                foreach (PupType type in GetPupTypeList())
+                {
+                    if (str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase) || (type.hasAdultModule && str.Equals(type.adultModule.name.value, StringComparison.OrdinalIgnoreCase)))
                     {
                         pupType = type;
                         break;
@@ -138,61 +174,6 @@ namespace PupBase
                 }
             }
             return false;
-        }
-
-        /// <summary>
-        /// Searches through all available PupTypes and returns the PupType Found if the puptypes' name is in the given string.
-        /// </summary>
-        /// <param name="str">The string to compare against.</param>
-        /// <returns>Returns the PupType found if str equals a puptypes name.</returns>
-        public static PupType GetPupTypeFromString(string str)
-        {
-            PupType pupType = null;
-            if (GetPupTypeList() != null)
-            {
-                foreach (PupType type in GetPupTypeList())
-                {
-                    if (str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase))
-                    {
-                        pupType = type;
-                        break;
-                    }
-                    else if (type.hasAdultModule && str.Equals(type.adultModule.name.value, StringComparison.OrdinalIgnoreCase))
-                    {
-                        pupType = type;
-                        break;
-                    }
-                }
-            }
-            return pupType;
-        }
-
-        /// <summary>
-        /// Searches through all available PupTypes and returns true if the puptypes' name is in the given string. Outputs the PupType found.
-        /// </summary>
-        /// <param name="str">The string to compare against.</param>
-        /// <param name="pupType">The output if a match is found.</param>
-        /// <returns>Returns true if str equals a puptypes name, and outputs the puptype it was found in.</returns>
-        public static bool TryGetPupTypeFromString(string str, out PupType pupType)
-        {
-            pupType = null;
-            if (pupTypeList != null)
-            {
-                foreach (PupType type in GetPupTypeList())
-                {
-                    if (str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase))
-                    {
-                        pupType = type;
-                        break;
-                    }
-                    else if (type.hasAdultModule && str.Equals(type.adultModule.name.value, StringComparison.OrdinalIgnoreCase))
-                    {
-                        pupType = type;
-                        break;
-                    }
-                }
-            }
-            return pupType != null;
         }
 
         /// <summary>
