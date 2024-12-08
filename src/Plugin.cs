@@ -9,7 +9,7 @@ namespace PupBase
 
         internal const string MOD_NAME = "PupBase";
 
-        internal const string VERSION = "1.2.2";
+        internal const string VERSION = "1.2.3";
 
         internal const string AUTHORS = "Antoneeee";
 
