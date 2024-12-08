@@ -6,7 +6,7 @@ namespace PupBase
 {
     public static class PupManager
     {
-        private static List<PupType> pupTypeList = [new PupType(Plugin.MOD_NAME, MoreSlugcatsEnums.SlugcatStatsName.Slugpup) { regionModifiers = [new("SU", 1.2f)], adultModule = new PupType.AdultModule(SlugpupNames.SlugpupAdult) }];
+        private static List<PupType> pupTypeList = [new(Plugin.MOD_NAME, MoreSlugcatsEnums.SlugcatStatsName.Slugpup) { regionModifiers = [new("SU", 1.2f)], adultModule = new(SlugpupNames.SlugpupAdult) }];
 
         public static List<int> PupIDBlacklist = [1000, 1001, 2220, 3118, 4118, 765];
 
