@@ -6,7 +6,7 @@ namespace PupBase
 {
     public static class PupManager
     {
-        private static List<PupType> pupTypeList = [new(Plugin.MOD_NAME, MoreSlugcatsEnums.SlugcatStatsName.Slugpup) { regionModifiers = [new("SU", 1.2f)], adultModule = new(SlugpupNames.SlugpupAdult) }];
+        private static List<PupType> pupTypeList = [new(Plugin.MOD_NAME, MoreSlugcatsEnums.SlugcatStatsName.Slugpup) { regionModifiers = [new("SU") { spawnMultiplier = 1.2f }], adultModule = new(SlugpupNames.SlugpupAdult) }];
 
         public static List<int> PupIDBlacklist = [1000, 1001, 2220, 3118, 4118, 765];
 
@@ -40,7 +40,7 @@ namespace PupBase
             foreach (PupType type in GetPupTypeList())
             {
                 tempList.Add(type.name);
-                if (includeAdultName && type.hasAdultModule)
+                if (includeAdultName && type.HasAdultModule)
                 {
                     tempList.Add(type.adultModule.name);
                 }
@@ -60,7 +60,7 @@ namespace PupBase
             foreach (PupType type in GetPupTypeList())
             {
                 tempList.Add(type.name.value);
-                if (includeAdultName && type.hasAdultModule)
+                if (includeAdultName && type.HasAdultModule)
                 {
                     tempList.Add(type.adultModule.name.value);
                 }
@@ -79,7 +79,7 @@ namespace PupBase
             {
                 foreach (PupType type in GetPupTypeList())
                 {
-                    if (type.name == name || (type.hasAdultModule && type.adultModule.name == name))
+                    if (type.name == name || (type.HasAdultModule && type.adultModule.name == name))
                     {
                         return type;
                     }
@@ -101,7 +101,7 @@ namespace PupBase
             {
                 foreach (PupType type in GetPupTypeList())
                 {
-                    if (type.name == name || (type.hasAdultModule && type.adultModule.name == name))
+                    if (type.name == name || (type.HasAdultModule && type.adultModule.name == name))
                     {
                         pupType = type;
                         break;
@@ -123,7 +123,7 @@ namespace PupBase
             {
                 foreach (PupType type in GetPupTypeList())
                 {
-                    if (str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase) || (type.hasAdultModule && str.Equals(type.adultModule.name.value, StringComparison.OrdinalIgnoreCase)))
+                    if (str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase) || (type.HasAdultModule && str.Equals(type.adultModule.name.value, StringComparison.OrdinalIgnoreCase)))
                     {
                         pupType = type;
                         break;
@@ -146,7 +146,7 @@ namespace PupBase
             {
                 foreach (PupType type in GetPupTypeList())
                 {
-                    if (str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase) || (type.hasAdultModule && str.Equals(type.adultModule.name.value, StringComparison.OrdinalIgnoreCase)))
+                    if (str.Equals(type.name.value, StringComparison.OrdinalIgnoreCase) || (type.HasAdultModule && str.Equals(type.adultModule.name.value, StringComparison.OrdinalIgnoreCase)))
                     {
                         pupType = type;
                         break;
@@ -167,7 +167,7 @@ namespace PupBase
             {
                 foreach (PupType type in GetPupTypeList())
                 {
-                    if (type.hasAdultModule && type.adultModule.name == name)
+                    if (type.HasAdultModule && type.adultModule.name == name)
                     {
                         return true;
                     }
@@ -182,17 +182,18 @@ namespace PupBase
         /// <param name="abstractCreature">Used to gather all necessary data.</param>
         /// <param name="adultTypeOnly">Will only generate pups that have the Adult module.</param>
         /// <param name="info">Outputs info to the log</param>
-        /// <returns>Outputs the newly generated PupType.</returns>
-        public static PupType GenerateType(AbstractCreature abstractCreature, bool adultTypeOnly = false, bool info = true)
+        /// <returns>Outputs the newly generated PupType, and if applicable, if its an adult or not.</returns>
+        public static (PupType, bool) GenerateType(AbstractCreature abstractCreature, bool adultTypeOnly = false, bool info = true)
         {
             // Calculate total weight.
             float totalWeight = 0;
             List<object[]> listedWeights = new List<object[]>();
             foreach (PupType type in pupTypeList)
             {
-                if (!adultTypeOnly || (adultTypeOnly && type.hasAdultModule))
+                if (!adultTypeOnly || (adultTypeOnly && type.HasAdultModule))
                 {
-                    listedWeights.Add([type, type.CalculateWeight(abstractCreature.world, info && ModOptions.enableDebug.Value)]);
+                    (float w, float a) = type.CalculateWeight(abstractCreature.world, info && ModOptions.enableDebug.Value);
+                    listedWeights.Add([type, w, a]);
                     totalWeight += (float)listedWeights.Last()[1];
                 }
             }
@@ -201,7 +202,8 @@ namespace PupBase
             Random.State state = Random.state;
             Random.InitState(abstractCreature.ID.RandomSeed);
 
-            float seed = Random.value * totalWeight;
+            float seedWeight = Random.value * totalWeight;
+            float seed = Random.value;
 
             Random.state = state;
 
@@ -211,25 +213,31 @@ namespace PupBase
             {
                 sum += (float)obj[1];
 
-                if (sum >= seed)
+                if (sum >= seedWeight)
                 {
-                    if (info) Plugin.ModLogger.LogInfo("Generated " + abstractCreature.ID.ToString() + " Type " + ((PupType)obj[0]).name);
-                    return (PupType)obj[0];
+                    bool roll = ((float)obj[2] / 100f) >= seed;
+                    if (info) Plugin.ModLogger.LogInfo("Generated " + abstractCreature.ID.ToString() + " Type " + ((PupType)obj[0]).name + " As " + (roll ? "an adult." : "a child."));
+                    return ((PupType)obj[0], roll);
                 }
             }
             if (info) Plugin.ModLogger.LogInfo("Failed to generate a PupType. Defaulting to Slugpup.");
-            return GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup);
+            return (GetPupType(MoreSlugcatsEnums.SlugcatStatsName.Slugpup), false);
         }
 
         /// <summary>
         /// determines if the pup ID given will be an adult or not.
         /// </summary>
         /// <param name="abstractCreature">Used to gather all necessary data.</param>
-        /// <param name="type">The module used to determine the likelyhood of it being an adult.</param>
+        /// <param name="type">The puptypes' module used to determine the likelyhood of it being an adult.</param>
         /// <param name="info">Outputs info to the log</param>
-        /// <returns>Outputs the newly generated PupType.</returns>
-        public static bool GenerateAdult(AbstractCreature abstractCreature, PupType.AdultModule type, bool info = true)
+        /// <returns>Outputs true or false if it successfully rolled for an adult.</returns>
+        public static bool GenerateAdult(AbstractCreature abstractCreature, PupType type, bool info = true)
         {
+            if (!type.HasAdultModule)
+            {
+                return false;
+            }
+
             // Generate random number based on ID
             Random.State state = Random.state;
             Random.InitState(abstractCreature.ID.RandomSeed);
@@ -238,8 +246,10 @@ namespace PupBase
 
             Random.state = state;
 
-            bool roll = (type.adultChance / 100f) >= seed;
-            if (info) Plugin.ModLogger.LogInfo(abstractCreature.ID.ToString() + (roll ? " rolled as an adult." : " rolled as a child.") );
+            (_,float adultChance) = type.CalculateWeight(abstractCreature.world, info && ModOptions.enableDebug.Value);
+
+            bool roll = (adultChance / 100f) >= seed;
+            if (info) Plugin.ModLogger.LogInfo(abstractCreature.ID.ToString() + (roll ? " generated as an adult." : " generated as a child.") );
             return roll;
         }
 

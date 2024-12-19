@@ -9,7 +9,7 @@ namespace PupBase
 
         internal const string MOD_NAME = "PupBase";
 
-        internal const string VERSION = "1.2.4";
+        internal const string VERSION = "1.2.5";
 
         internal const string AUTHORS = "Antoneeee";
 
@@ -102,8 +102,8 @@ namespace PupBase
         public static void DevConsoleCommand()
         {
             string[] tags = ["Voidsea", "Winter", "Ignorecycle", "TentacleImmune", "Lavasafe", "AlternateForm", "PreCycle", "Night"];
-            string[] types = [..PupManager.GetPupTypeListString().ToArray(), "Random"];
-            string[] mature = ["Random", "Mature", "Child"];
+            string[] typeTags = [..PupManager.GetPupTypeListString().ToArray(), "Random"];
+            string[] ageTags = ["Adult", "Child"];
             new CommandBuilder("spawn_slugNPC")
                 .RunGame((game, arguments) =>
                 {
@@ -113,7 +113,7 @@ namespace PupBase
                         {
                             EntityID? id = null;
                             string pupType = null;
-                            string maturity = null;
+                            string ageType = null;
                             bool? prioritize = null;
                             string[] tempTags = [];
                             foreach (string argument in arguments)
@@ -140,13 +140,14 @@ namespace PupBase
                                     {
                                         prioritize = false;
                                     }
-                                    else if (types.Contains(argument))
+
+                                    if (pupType == null && typeTags.Contains(argument))
                                     {
                                         pupType = argument;
                                     }
-                                    else if (mature.Contains(argument))
+                                    if (ageType == null && ageTags.Contains(argument))
                                     {
-                                        maturity = argument;
+                                        ageType = argument;
                                     }
 
                                     foreach (string testTag in tags)
@@ -173,20 +174,17 @@ namespace PupBase
                                 if (pupType != null && PupManager.TryGetPupTypeFromString(pupType, out PupType type))
                                 {
                                     npcState.PupState().pupType = type;
-                                    if (npcState.PupType().hasAdultModule)
-                                    {
-                                        npcState.forceFullGrown = PupManager.GenerateAdult(abstractPup, npcState.PupType().adultModule, false);
-                                    }
+                                    if (ageType == null) npcState.forceFullGrown = PupManager.GenerateAdult(abstractPup, npcState.PupType(), false);
                                     npcState.PupState().prioritize = prioritize == true;
                                 }
-                                if (maturity != null)
+                                if (ageType != null)
                                 {
-                                    switch (maturity)
+                                    switch (ageType)
                                     {
-                                        case "Mature":
-                                            if (npcState.PupType() == null || (npcState.PupType() != null && !npcState.PupType().hasAdultModule))
+                                        case "Adult":
+                                            if (npcState.PupType() == null || (npcState.PupType() != null && !npcState.PupType().HasAdultModule))
                                             {
-                                                npcState.PupState().pupType = PupManager.GenerateType(abstractPup, true, info: false);
+                                                (npcState.PupState().pupType, _) = PupManager.GenerateType(abstractPup, true, info: false);
                                             }
                                             npcState.forceFullGrown = true;
                                             npcState.PupState().prioritize = prioritize == true;
@@ -194,17 +192,16 @@ namespace PupBase
                                         case "Child":
                                             if (npcState.PupType() == null)
                                             {
-                                                npcState.PupState().pupType = PupManager.GenerateType(abstractPup, false, info: false);
+                                                (npcState.PupState().pupType, _) = PupManager.GenerateType(abstractPup, false, info: false);
                                             }
                                             npcState.forceFullGrown = false;
                                             npcState.PupState().prioritize = prioritize == true;
                                             break;
                                     }
                                 }
-                                if (npcState.PupType() != null)
+                                if (pupType != null || ageType != null)
                                 {
-                                    ModLogger.LogInfo("Assigned " + abstractPup.ID.ToString() + " Type " + npcState.PupType().name);
-                                    ModLogger.LogInfo(npcState.forceFullGrown ? " set as an adult." : " set as a child.");
+                                    ModLogger.LogInfo("Assigned " + abstractPup.ID.ToString() + (npcState.PupType() != null ? " Type " + npcState.PupType().name : "") + (ageType != null ? " As " + (npcState.forceFullGrown ? "an adult" : "a child") : ""));
                                 }
                             }
                             if (tempTags.Length > 0)
@@ -243,17 +240,17 @@ namespace PupBase
                     bool mat = false;
                     foreach (string argument in arguments)
                     {
-                        if (types.Contains(argument))
+                        if (typeTags.Contains(argument))
                         {
                             type = true;
                         }
-                        if (mature.Contains(argument))
+                        if (ageTags.Contains(argument))
                         {
                             mat = true;
                         }
                     }
-                    if (!type) return types;
-                    else if (!mat) return mature;
+                    if (!type) return typeTags;
+                    else if (!mat) return ageTags;
                     else return tags;
                 })
                 .Register();

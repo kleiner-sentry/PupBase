@@ -71,7 +71,7 @@ namespace PupBase.Hooks
             statsCurs.Emit(OpCodes.Ldarg_1);
             statsCurs.EmitDelegate(delegate (NPCStats self, Player player)
             {
-                if (player.PupType() != null && player.PupType().hasAdultModule && player.PupType().adultModule?.name == SlugpupNames.SlugpupAdult)
+                if (player.PupType() != null && player.PupType().HasAdultModule && player.PupType().adultModule?.name == SlugpupNames.SlugpupAdult)
                 {
                     player.abstractCreature.personality.sympathy = Random.value;
                     player.abstractCreature.personality.bravery = Random.value;

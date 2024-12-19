@@ -58,7 +58,7 @@ namespace PupBase.Hooks
 
         public static void PlayerNPCState_CycleTick(On.MoreSlugcats.PlayerNPCState.orig_CycleTick orig, PlayerNPCState self)
         {
-            if (self.player.world.game.IsStorySession && ModOptions.enableAging.Value && self.PupType() != null && self.PupType().hasAdultModule && !self.PupType().adultModule.disableAging)
+            if (self.player.world.game.IsStorySession && ModOptions.enableAging.Value && self.PupType() != null && self.PupType().HasAdultModule && !self.PupType().adultModule.disableAging)
             {
                 if (!self.Malnourished && self.foodInStomach >= self.PupType().maxFood)
                 {
@@ -83,7 +83,7 @@ namespace PupBase.Hooks
                 foodCurs.Emit(OpCodes.Ldarg_0);
                 foodCurs.EmitDelegate((SlugcatStats.Name slugpup, PlayerNPCState self) =>
                 {
-                    return self.PupState().pupType != null ? self.PupType().hasAdultModule && self.forceFullGrown ? self.PupType().adultModule.name : self.PupType().name : slugpup;
+                    return self.PupState().pupType != null ? self.PupType().HasAdultModule && self.forceFullGrown ? self.PupType().adultModule.name : self.PupType().name : slugpup;
                 }); 
             }
         }

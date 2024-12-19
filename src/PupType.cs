@@ -7,56 +7,46 @@ namespace PupBase
         public class RegionModifier
         {
             public string str;
-            public float multiplier;
-            public bool exclusive;
-            public bool unique;
+            public float spawnMultiplier = 1;
+            public float adultMultiplier = 1;
+            public bool exclusive = false;
+            public bool unique = false;
 
             /// <summary>
             /// Allows you to choose if your Puptype will be chosen more or less freqently in specific regions.
             /// </summary>
             /// <param name="str">Represents the region ID.</param>
-            /// <param name="multiplier">How much this modifier will multiply its spawn weight.</param>
-            /// <param name="exclusive">A tag used to make this specific region only allow your kind of pup. If another PupType has this exclusive tag in the same region as this is used in, they'll both spawn.</param>
-            /// <param name="unique">Make this kind of pup only spawn in this region.</param>
-            public RegionModifier(string str, float multiplier, bool exclusive = false, bool unique = false)
+            public RegionModifier(string str)
             {
                 this.str = str;
-                this.multiplier = multiplier;
-                this.exclusive = exclusive;
-                this.unique = unique;
             }
 
             public override string ToString()
             {
-                return "{ " + str + ", " + multiplier + (exclusive ? ", Exclusive" : "") + (unique ? ", Unique" : "") + " }";
+                return "{ " + str + ", " + (spawnMultiplier != 1 ? "spawnMultiplier: " + spawnMultiplier + ", " : "") + (adultMultiplier != 1 ? "adultMultiplier: " + adultMultiplier + ", " : "") + (exclusive ? ", Exclusive" : "") + (unique ? ", Unique" : "") + " }";
             }
         }
 
         public class CampaignModifier
         {
             public string str;
-            public float multiplier;
-            public bool exclusive;
-            public bool unique;
+            public float spawnMultiplier = 1;
+            public float adultMultiplier = 1;
+            public bool exclusive = false;
+            public bool unique = false;
 
             /// <summary>
             /// Allows you to choose if your Puptype will be chosen more or less freqently in specific campaigns.
             /// </summary>
             /// <param name="str">Represents the name of a campaign.</param>
-            /// <param name="multiplier">How much this modifier will multiply its spawn weight.</param>
-            /// <param name="exclusive">A tag used to make this specific campaign only allow your kind of pup. If another PupType has this exclusive tag in the same campaign as this is used in, they'll both spawn.</param>
-            /// <param name="unique">Make this kind of pup only spawn in this campaign.</param>
-            public CampaignModifier(string str, float multiplier, bool exclusive = false, bool unique = false)
+            public CampaignModifier(string str)
             {
                 this.str = str;
-                this.multiplier = multiplier;
-                this.exclusive = exclusive;
-                this.unique = unique;
             }
 
             public override string ToString()
             {
-                return "{ " + str + ", " + multiplier + (exclusive ? ", Exclusive" : "") + (unique ? ", Unique" : "") + " }";
+                return "{ " + str + ", " + (spawnMultiplier != 1 ? "spawnMultiplier: " + spawnMultiplier + ", " : "") + (adultMultiplier != 1 ? "adultMultiplier: " + adultMultiplier + ", " : "") + (exclusive ? ", Exclusive" : "") + (unique ? ", Unique" : "") + " }";
             }
         }
 
@@ -73,7 +63,7 @@ namespace PupBase
             public bool customAdultChance = true;
             internal Configurable<int> adultChanceConfig;
             public readonly int defaultAdultChance;
-            public int adultChance
+            public int AdultChance
             {
                 get { return (customAdultChance && adultChanceConfig != null) ? adultChanceConfig.Value : defaultAdultChance; }
             }
@@ -94,7 +84,7 @@ namespace PupBase
                 {
                     this.name = name;
                 }
-
+                
                 defaultAdultChance = Mathf.Clamp(adultChance, 0, 100);
 
                 adultChanceConfig = ModOptions.Instance.config.Bind("AdultChance" + this.name, defaultAdultChance, new ConfigurableInfo("Set the percentage chance this pup will spawn as an adult.", new ConfigAcceptableRange<int>(0, 100)));
@@ -105,7 +95,8 @@ namespace PupBase
         public readonly SlugcatStats.Name name;
 
         public AdultModule adultModule;
-        public bool hasAdultModule {  get { return adultModule != null; } }
+        public bool HasAdultModule {  get { return adultModule != null; } }
+        public float AdultChance { get { return HasAdultModule ? adultModule.AdultChance : 0; } }
 
         public List<RegionModifier> regionModifiers;
         public List<CampaignModifier> campaignModifiers;
@@ -119,7 +110,10 @@ namespace PupBase
         public bool customSpawnWeight = true;
         internal Configurable<int> spawnWeightConfig;
         public readonly int defaultSpawnWeight;
-        public int spawnWeight { get { return (customSpawnWeight && spawnWeightConfig != null) ? spawnWeightConfig.Value : defaultSpawnWeight; } }
+        public int SpawnWeight 
+        { 
+            get { return (customSpawnWeight && spawnWeightConfig != null) ? spawnWeightConfig.Value : defaultSpawnWeight; } 
+        }
 
         /// <summary>
         /// Creates a new PupType. This constructor has every possible variable that you can customize.
@@ -150,8 +144,8 @@ namespace PupBase
         /// </summary>
         /// <param name="world">Used to calculate if the pup is currently in a region.</param>
         /// <param name="debug">Outputs the results to the log.</param>
-        /// <returns>Returns the proper spawn weight.</returns>
-        public float CalculateWeight(World world, bool debug = false)
+        /// <returns>Returns the proper spawn weight and adult chance.</returns>
+        public (float, float) CalculateWeight(World world, bool debug = false)
         {
             if (world != null && !world.game.IsArenaSession)
             {
@@ -166,7 +160,8 @@ namespace PupBase
                 bool isUniqueCampaign = false;
                 bool inUniqueCampaign = false;
                 // Calculate
-                float tempWeight = spawnWeight;
+                float tempWeight = SpawnWeight;
+                float tempAdult = AdultChance;
                 foreach (PupType type in PupManager.GetPupTypeList())
                 {
                     if (type.regionModifiers != null)
@@ -180,7 +175,8 @@ namespace PupBase
                                 {
                                     if (regionModifier.exclusive) inExclusiveRegion = true;
                                     inUniqueRegion = true;
-                                    tempWeight *= regionModifier.multiplier;
+                                    tempWeight *= regionModifier.spawnMultiplier;
+                                    tempAdult *= regionModifier.adultMultiplier;
                                 }
                             }
                             else if (regionModifier.exclusive && regionModifier.str == world.region.name)
@@ -200,7 +196,8 @@ namespace PupBase
                                 {
                                     if (campaignModifier.exclusive) inExclusiveCampaign = true;
                                     inUniqueCampaign = true;
-                                    tempWeight *= campaignModifier.multiplier;
+                                    tempWeight *= campaignModifier.spawnMultiplier;
+                                    tempAdult *= campaignModifier.adultMultiplier;
                                 }
                             }
                             else if (campaignModifier.exclusive && campaignModifier.str == world.game.StoryCharacter.value)
@@ -216,10 +213,15 @@ namespace PupBase
                     disabled = true;
                 }
                 if (debug) Plugin.ModLogger.LogDebug(disabled ? name + " Will not spawn. Because: " + ((otherExclusiveCampaign && !inExclusiveCampaign) ? "Spawned in an excluded campaign." : (otherExclusiveRegion && !inExclusiveRegion) ? "Spawned in an excluded region." : (isUniqueCampaign && !inUniqueCampaign) ? "Didn't spawn in its unique campaign." : (isUniqueRegion && !inUniqueRegion) ? "Didn't spawn in its unique region." : "No reason...How did this happen?") : name + "s spawnWeight is: " + tempWeight);
-                return disabled ? 0 : tempWeight;
+                
+                if (disabled)
+                {
+                    return (0, AdultChance);
+                }
+                return (tempWeight, tempAdult);
             }
-            if (debug) Plugin.ModLogger.LogDebug(name + "s spawnWeight is: " + spawnWeight);
-            return spawnWeight;
+            if (debug) Plugin.ModLogger.LogDebug(name + "s spawnWeight is: " + SpawnWeight + " and adultchance is: " + AdultChance);
+            return (SpawnWeight, AdultChance);
         }
 
         public string ModifiersToString()

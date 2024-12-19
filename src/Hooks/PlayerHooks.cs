@@ -20,7 +20,7 @@
                 statsCurs.Emit(OpCodes.Ldarg_0);
                 statsCurs.EmitDelegate((SlugcatStats.Name name, Player player) =>
                 {
-                    return player.PupState().pupType != null ? player.PupType().hasAdultModule && player.playerState.forceFullGrown ? player.PupType().adultModule.name : player.PupType().name : name;
+                    return player.PupState().pupType != null ? player.PupType().HasAdultModule && player.playerState.forceFullGrown ? player.PupType().adultModule.name : player.PupType().name : name;
                 });
             }
             catch (Exception e)
@@ -54,12 +54,7 @@
                     }
                     else if (player.isSlugpup && player.isNPC && player.PupType() == null && !((Plugin.Pearlcat && PupManager.IsPearlpup(player.abstractCreature)) || PupManager.PupIDBlacklist.Contains(player.abstractCreature.ID.RandomSeed)))
                     {
-                        player.PupState().pupType = PupManager.GenerateType(player.abstractCreature, player.playerState.forceFullGrown, info: true);
-                        if (!player.playerState.forceFullGrown && player.PupType().hasAdultModule)
-                        {
-                            player.playerState.forceFullGrown = PupManager.GenerateAdult(player.abstractCreature, player.PupType().adultModule);
-
-                        }
+                        (player.PupState().pupType, player.playerState.forceFullGrown) = PupManager.GenerateType(player.abstractCreature, player.playerState.forceFullGrown, info: true);
                     }
                 });
             
@@ -67,7 +62,7 @@
                 statsCurs.Emit(OpCodes.Ldarg_1);
                 statsCurs.EmitDelegate((SlugcatStats.Name slugpup, Player player) => 
                 {
-                    return player.PupState().pupType != null ? player.PupType().hasAdultModule && player.playerState.forceFullGrown ? player.PupType().adultModule.name : player.PupType().name : slugpup;
+                    return player.PupState().pupType != null ? player.PupType().HasAdultModule && player.playerState.forceFullGrown ? player.PupType().adultModule.name : player.PupType().name : slugpup;
                 });
             }
             catch (Exception e)
