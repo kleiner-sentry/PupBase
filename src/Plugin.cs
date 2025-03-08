@@ -5,13 +5,13 @@ namespace PupBase
     [BepInPlugin(MOD_ID, MOD_NAME, VERSION)]
     class Plugin : BaseUnityPlugin
     {
-        internal const string MOD_ID = "Antoneeee.PupBase";
+        public const string MOD_ID = "Antoneeee.PupBase";
 
-        internal const string MOD_NAME = "PupBase";
+        public const string MOD_NAME = "PupBase";
 
-        internal const string VERSION = "1.2.5";
+        public const string VERSION = "1.2.6";
 
-        internal const string AUTHORS = "Antoneeee";
+        public const string AUTHORS = "Antoneeee";
 
         internal bool IsInit = false;
 
@@ -24,6 +24,11 @@ namespace PupBase
         internal static bool SlugpupStuff = false;
 
         internal static BepInEx.Logging.ManualLogSource ModLogger;
+
+        Plugin()
+        {
+            ModLogger = Logger;
+        }
 
         public void OnEnable()
         {

@@ -262,11 +262,7 @@ namespace PupBase
         {
             try
             {
-                if (state is PlayerNPCState npcState && SlugpupCWTs.GetPupState(npcState).Variant != null)
-                {
-                    return true;
-                }
-                return false;
+                return !SlugpupCWTs.TryGetPupState(state as PlayerNPCState, out _);
             }
             catch (Exception ex)
             {

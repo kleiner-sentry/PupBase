@@ -1,7 +1,7 @@
 {
 	"id": "Antoneeee.PupBase",
 	"name": "PupBase",
-	"version": "1.2.5",
+	"version": "1.2.6",
 	"target_game_version": "v1.9.15b",
 	"authors": "Antoneeee",
 	"description": "A framework for adding new types of Slugpups",
