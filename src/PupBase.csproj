@@ -7,9 +7,6 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <Reference Include="..\lib\Assembly-CSharp-firstpass.dll">
-          <Private>false</Private>
-        </Reference>
         <Reference Include="..\lib\BepInEx.dll">
           <Private>false</Private>
         </Reference>

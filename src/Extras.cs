@@ -30,7 +30,7 @@ internal static class Extras
             }
             catch (Exception e)
             {
-                Debug.LogException(e);
+                PupBase.Plugin.ModLogger.LogError(e);
             }
         };
     }
