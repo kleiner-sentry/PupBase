@@ -9,7 +9,7 @@ namespace PupBase
 
         public const string MOD_NAME = "PupBase";
 
-        public const string VERSION = "1.2.7";
+        public const string VERSION = "1.2.8";
 
         public const string AUTHORS = "Antoneeee";
 

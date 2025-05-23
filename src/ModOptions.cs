@@ -15,6 +15,8 @@
 
         public static Configurable<bool> enableAging = Instance.config.Bind(nameof(enableAging), false, new ConfigurableInfo("Allow pups to grow up after a few cycles with a full stomach.", null, "", "Enable Aging"));
 
+        public static Configurable<bool> nonBaseAging = Instance.config.Bind(nameof(nonBaseAging), false, new ConfigurableInfo("Allow non-pupbase pups to age. Use with caution.", null, "", "Aging Compatibility"));
+
         public static Configurable<int> cyclesTillGrown = Instance.config.Bind(nameof(cyclesTillGrown), 10, new ConfigurableInfo("How many cycles must the pup survive with a full stomach until it grows up.", new ConfigAcceptableRange<int>(1, 100000), "", ""));
 
         private static UIelement[] list = [];
@@ -45,8 +47,10 @@
                 new OpLabel(new Vector2(400f, 445f), new Vector2(5, 15), text: "If your Slugpup can hibernate with a full stomach,\n they will grow older. After enough cycles has passed,\n they'll become an adult.", bigText: false),
                 new OpLabel(300f, 390f, "Enable Aging: "),
                 new OpCheckBox(enableAging, new Vector2(450f, 390f)),
-                new OpLabel(300f, 340f, "Cycles until Adult: "),
-                new OpUpdown(cyclesTillGrown, new Vector2(450f, 340f), 75)
+                new OpLabel(300f, 340f, "Aging Compatibility: "),
+                new OpCheckBox(nonBaseAging, new Vector2(450f, 340f)),
+                new OpLabel(300f, 290f, "Cycles until Adult: "),
+                new OpUpdown(cyclesTillGrown, new Vector2(450f, 290f), 75)
             ];
 
             settingsTab.AddItems(opts);
