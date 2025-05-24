@@ -66,7 +66,7 @@ namespace PupBase.Hooks
                     {
                         self.PupState().age++;
                     }
-                    if (!self.forceFullGrown && (self.PupType() != null && self.PupState().age >= Mathf.Clamp(Mathf.RoundToInt(ModOptions.cyclesTillGrown.Value * self.PupType().adultModule.agingMultiplier), 1, 100000) || (self.PupType() == null && self.PupState().age >= Mathf.Clamp(Mathf.RoundToInt(ModOptions.cyclesTillGrown.Value), 1, 100000))))
+                    if (!self.forceFullGrown && ((self.PupType() != null && self.PupState().age >= Mathf.Clamp(Mathf.RoundToInt(ModOptions.cyclesTillGrown.Value * self.PupType().adultModule.agingMultiplier), 1, 100000)) || (self.PupType() == null && self.PupState().age >= Mathf.Clamp(Mathf.RoundToInt(ModOptions.cyclesTillGrown.Value), 1, 100000))))
                     {
                         self.forceFullGrown = true;
                         if (self.PupType != null) self.foodInStomach = self.PupType().adultModule.foodToHibernate;

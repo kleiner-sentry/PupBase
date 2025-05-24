@@ -2,7 +2,7 @@
   "Title": "PupBase",
   "Description": "A framework for adding new types of Slugpups.",
   "ID": "Antoneeee.PupBase",
-  "Version": "1.2.7",
+  "Version": "1.2.9",
   "TargetGameVersion": "v1.10.3",
   "Requirements": "moreslugcats",
   "RequirementNames": "More Slugcats Expansion",
