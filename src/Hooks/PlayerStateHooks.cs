@@ -58,19 +58,16 @@ namespace PupBase.Hooks
 
         public static void PlayerNPCState_CycleTick(On.MoreSlugcats.PlayerNPCState.orig_CycleTick orig, PlayerNPCState self)
         {
-            if (self.player.world.game.IsStorySession && ModOptions.enableAging.Value)
+            if (self.player.world.game.IsStorySession && ModOptions.enableAging.Value && ((self.PupType() != null && self.PupType().HasAdultModule && !self.PupType().adultModule.disableAging) || (ModOptions.nonBaseAging.Value && self.PupType() == null)))
             {
-                if ((self.PupType() != null && self.PupType().HasAdultModule && !self.PupType().adultModule.disableAging) || (ModOptions.nonBaseAging.Value && self.PupType() == null))
+                if (!self.Malnourished && self.foodInStomach >= self.PupType().maxFood)
                 {
-                    if (!self.Malnourished && self.foodInStomach >= self.PupType().maxFood)
-                    {
-                        self.PupState().age++;
-                    }
-                    if (!self.forceFullGrown && ((self.PupType() != null && self.PupState().age >= Mathf.Clamp(Mathf.RoundToInt(ModOptions.cyclesTillGrown.Value * self.PupType().adultModule.agingMultiplier), 1, 100000)) || (self.PupType() == null && self.PupState().age >= Mathf.Clamp(Mathf.RoundToInt(ModOptions.cyclesTillGrown.Value), 1, 100000))))
-                    {
-                        self.forceFullGrown = true;
-                        if (self.PupType != null) self.foodInStomach = self.PupType().adultModule.foodToHibernate;
-                    }
+                    self.PupState().age++;
+                }
+                if (!self.forceFullGrown && ((self.PupType() != null && self.PupState().age >= Mathf.Clamp(Mathf.RoundToInt(ModOptions.cyclesTillGrown.Value * self.PupType().adultModule.agingMultiplier), 1, 100000)) || (self.PupType() == null && self.PupState().age >= Mathf.Clamp(Mathf.RoundToInt(ModOptions.cyclesTillGrown.Value), 1, 100000))))
+                {
+                    self.forceFullGrown = true;
+                    if (self.PupType != null) self.foodInStomach = self.PupType().adultModule.foodToHibernate;
                 }
             }
 
